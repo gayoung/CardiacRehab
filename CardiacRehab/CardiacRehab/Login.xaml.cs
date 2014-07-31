@@ -34,11 +34,30 @@ namespace CardiacRehab
 
             // database connection and check login info
             DatabaseClass db = new DatabaseClass();
-            List<String>[] result = db.SelectRecords("id", "authentication", "username='" + username + "' AND password='" + password + "'");
+            List<String>[] result = db.SelectRecords("id, role", "authentication", "username='" + username + "' AND password='" + password + "'");
 
             if (result[0].Count() > 0)
             {
-                Console.WriteLine("Found you");
+                int userid = int.Parse(result[0][0].Trim());
+                if(result[1][0] == "Patient")
+                {
+                    Console.WriteLine("Patient Login");
+                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid);
+                    patientWindow.Show();
+                    patientWindow.Closed += new EventHandler(MainWindowClosed);
+                    this.Hide();
+                }
+                else if(result[1][0] == "Doctor")
+                {
+                    DoctorWindow doctorWindow = new DoctorWindow(userid);
+                    doctorWindow.Show();
+                    doctorWindow.Closed += new EventHandler(MainWindowClosed);
+                    this.Hide();
+                }
+                else if(result[1][0] == "Admin")
+                {
+                    Console.WriteLine("authenticated user is a admin");
+                }
             }
             else
             {

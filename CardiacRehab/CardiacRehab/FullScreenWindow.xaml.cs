@@ -1,4 +1,6 @@
 ﻿using DynamicDataDisplaySample.ECGViewModel;
+using Microsoft.Research.DynamicDataDisplay;
+using Microsoft.Research.DynamicDataDisplay.DataSources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,7 @@ namespace CardiacRehab
     /// </summary>
     public partial class FullScreenWindow : Window
     {
+        private int userid;
         public int patientLabel;
 
         public ECGPointCollection ecgPointCollection;
@@ -29,9 +32,53 @@ namespace CardiacRehab
 
         private DoctorWindow currentSplitScreen;
 
-        public FullScreenWindow()
+        public FullScreenWindow(int currentUser, int patientindex, DoctorWindow hidden)
         {
+            userid = currentUser;
+            patientLabel = patientindex;
+            currentSplitScreen = hidden;
+
             InitializeComponent();
+
+            bpSysValue.Content = hidden.systolic;
+            bpDiaValue.Content = hidden.diastolic;
+
+            InitializeECG();
+
+            this.pateintId.Content = "Patient " + patientindex.ToString();
+        }
+
+        public void InitializeECG()
+        {
+            ecgPointCollection = new ECGPointCollection();
+            ecgPointCollection = currentSplitScreen.ecgPointCollection;
+
+            updateCollectionTimer = new DispatcherTimer();
+            updateCollectionTimer.Interval = TimeSpan.FromMilliseconds(currentSplitScreen.ecgms);
+            updateCollectionTimer.Tick += new EventHandler(updateCollectionTimer_Tick);
+            updateCollectionTimer.Start();
+
+            var ds = new EnumerableDataSource<ECGPoint>(ecgPointCollection);
+            ds.SetXMapping(x => x.ECGtime);
+            ds.SetYMapping(y => y.ECG);
+            fullplotter.AddLineGraph(ds, Colors.SlateGray, 2, "ECG");
+
+            //plotter.HorizontalAxis.Remove();
+            //MaxECG = 1;
+            //MinECG = -1;
+        }
+
+        void updateCollectionTimer_Tick(object sender, EventArgs e)
+        {
+            if (currentSplitScreen != null)
+            {
+                if (currentSplitScreen.ECGPointList.Count > 0)
+                {
+                    ECGPoint point = currentSplitScreen.ECGPointList.First();
+                    ecgPointCollection.Add(point);
+                    currentSplitScreen.ECGPointList.Remove(point);
+                }
+            }
         }
 
         /// <summary>
@@ -79,3 +126,5 @@ namespace CardiacRehab
         }
     }
 }
+
+
