@@ -34,6 +34,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Coding4Fun.Kinect.KinectService.Common">
+      <HintPath>..\packages\Coding4Fun.Kinect.KinectService.Listeners.1.6.0\lib\Coding4Fun.Kinect.KinectService.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Coding4Fun.Kinect.KinectService.Listeners">
+      <HintPath>..\packages\Coding4Fun.Kinect.KinectService.Listeners.1.6.0\lib\Coding4Fun.Kinect.KinectService.Listeners.dll</HintPath>
+    </Reference>
+    <Reference Include="Coding4Fun.Kinect.KinectService.WpfClient">
+      <HintPath>..\packages\Coding4Fun.Kinect.KinectService.WpfClient.1.6.0\lib\Coding4Fun.Kinect.KinectService.WpfClient.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamicDataDisplay">
+      <HintPath>..\..\dll\DynamicDataDisplay.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -55,6 +68,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="DoctorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FullScreenWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Login.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -64,12 +85,33 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DatabaseClass.cs" />
+    <Compile Include="DoctorWindow.xaml.cs">
+      <DependentUpon>DoctorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ECGPointCollection.cs" />
+    <Compile Include="FullScreenWindow.xaml.cs">
+      <DependentUpon>FullScreenWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PatientWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PopupWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PatientWindow.xaml.cs">
+      <DependentUpon>PatientWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PopupWindow.xaml.cs">
+      <DependentUpon>PopupWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -87,6 +129,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -98,6 +141,45 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="heart_beat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Kinect.Toolkit\Microsoft.Kinect.Toolkit.csproj">
+      <Project>{c6f9c31b-6130-4443-a5cc-ef0664552ecd}</Project>
+      <Name>Microsoft.Kinect.Toolkit</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\bp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\collapse.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\downarrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ecg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\expand.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\heart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mute.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\note.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\oxygen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\uparrow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
