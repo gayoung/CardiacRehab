@@ -20,7 +20,10 @@ namespace CardiacRehab
         {
             InitializeDB();
         }
-
+        /// <summary>
+        /// Set all fields for the database connection.  Currently
+        /// it's set to connect to the local MySQL database.
+        /// </summary>
         private void InitializeDB()
         {
             db_server = "localhost";
@@ -34,6 +37,11 @@ namespace CardiacRehab
             db_connection = new MySqlConnection(connectionString);
         }
 
+        /// <summary>
+        /// Opens the connection to the MySQL database.
+        /// </summary>
+        /// <returns> Returns true if the database connection was successfully made. Otherwise can return
+        /// error code 0 or 1045.</returns>
         private bool OpenDBConnection()
         {
             try 
@@ -55,6 +63,11 @@ namespace CardiacRehab
                 return false;
             }
         }
+
+        /// <summary>
+        /// Closes the database connection.
+        /// </summary>
+        /// <returns>Return true if successfully closed. Otherwise, false.</returns>
         private bool CloseDBConnection()
         {
             try 
@@ -68,18 +81,75 @@ namespace CardiacRehab
                 return false;
             }
         }
-        public void InsertRecord()
+        /// <summary>
+        /// Insert the specified record into the specified database table
+        /// </summary>
+        /// <param name="tablename">database table name</param>
+        /// <param name="fields">all fields in this table</param>
+        /// <param name="values">Values to be inserted into db. Strings needs to have '' around...etc</param>
+        public void InsertRecord(String tablename, String fields, String values)
         {
+            String db_query = "INSERT INTO " + tablename + " (" + fields + ") VALUES(" + values + ")";
+            if(this.OpenDBConnection())
+            {
+                MySqlCommand insertCmd = new MySqlCommand(db_query, db_connection);
+                insertCmd.ExecuteNonQuery();
+                this.CloseDBConnection();
+            }
+            else
+            {
+                Console.WriteLine("Connection errror at InsertRecord.");
+            }
 
         }
-        public void DeleteRecord()
+
+        /// <summary>
+        /// Delete the specified record(s) from specified database table.
+        /// </summary>
+        /// <param name="tablename">database table name</param>
+        /// <param name="condition">Condition given to find the existing record(s)</param>
+        public void DeleteRecord(String tablename, String condition)
         {
+            String deleteQuery = "DELETE FROM " + tablename + " WHERE " + condition;
+
+            if(this.OpenDBConnection())
+            {
+                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, db_connection);
+                deleteCmd.ExecuteNonQuery();
+                this.CloseDBConnection();
+            }
+        }
+
+        /// <summary>
+        /// Update the record in the specified database table with specified new values.
+        /// </summary>
+        /// <param name="tablename">database table name</param>
+        /// <param name="updateInfo">Information in the table field(s) to be updated. (eg. name='Bob'...etc)</param>
+        /// <param name="condition">Condition given to find the existing record. (eg. id=2...etc)</param>
+        public void UpdateRecord(String tablename, String updateInfo, String condition)
+        {
+            String updateQuery = "UPDATE " + tablename + "SET " + updateInfo + " WHERE " + condition;
+
+            if(this.OpenDBConnection())
+            {
+                MySqlCommand updateCmd = new MySqlCommand(updateQuery, db_connection);
+                updateCmd.ExecuteNonQuery();
+                this.CloseDBConnection();
+            }
+            else
+            {
+                Console.WriteLine("Connection error at UpdateRecord.");
+            }
 
         }
-        public void UpdateRecord()
-        {
 
-        }
+        /// <summary>
+        /// Select specified record(s) from the specified database table.
+        /// </summary>
+        /// <param name="fields">need to list all fields in db (* character does not work in this syntax)</param>
+        /// <param name="table"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
         public List<String>[] SelectRecords(String fields, String table, String condition)
         {
             String db_query = "";
@@ -102,7 +172,7 @@ namespace CardiacRehab
                 queryResults[i] = new List<String>();
             }
             
-            if(this.OpenDBConnection() == true)
+            if(this.OpenDBConnection())
             {
                 MySqlCommand command = new MySqlCommand(db_query, db_connection);
                 MySqlDataReader dataReader = command.ExecuteReader();
@@ -123,7 +193,7 @@ namespace CardiacRehab
             }
             else
             {
-                Console.WriteLine("error at SelectRecords");
+                Console.WriteLine("Connection error at SelectRecords.");
                 return queryResults;
             }
 
