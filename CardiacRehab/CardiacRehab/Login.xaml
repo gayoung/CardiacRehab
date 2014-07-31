@@ -25,6 +25,6 @@
         </ComboBox>
         <Button x:Name="login_button" Content="Login" HorizontalAlignment="Left" Margin="100,223,0,19" Width="111" BorderBrush="#FF0A5B15" Foreground="#FFF7F1F1" BorderThickness="0" FontFamily="Century" FontWeight="Bold" Opacity="0.8" Click="login_button_Click" Background="#FF0A5B15"/>
         <Label x:Name="warning_label" Content="Wrong username/password." HorizontalAlignment="Left" Margin="72,194,0,0" VerticalAlignment="Top" Foreground="#FFD60B0B" FontFamily="Century" Visibility="Hidden"/>
-        <Image Margin="197,6,31,216" Source="heart_beat.png" Stretch="Fill"/>
+        <Image Margin="197,6,31,216" Source="Resources/heart_beat.png" Stretch="Fill"/>
     </Grid>
 </Window>
