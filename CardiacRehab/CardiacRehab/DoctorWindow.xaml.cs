@@ -98,11 +98,13 @@ namespace CardiacRehab
         bool[] warningStatus = new bool[6];
 
         public double ecgms = 30;
+        int sessionID;
 
 
-        public DoctorWindow(int currentuser)
+        public DoctorWindow(int currentuser, int session)
         {
             userid = currentuser;
+            sessionID = session;
 
             GetLocalIP();
             InitializeComponent();

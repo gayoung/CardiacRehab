@@ -87,19 +87,23 @@ namespace CardiacRehab
         /// <param name="tablename">database table name</param>
         /// <param name="fields">all fields in this table</param>
         /// <param name="values">Values to be inserted into db. Strings needs to have '' around...etc</param>
-        public void InsertRecord(String tablename, String fields, String values)
+        public int InsertRecord(String tablename, String fields, String values)
         {
+            int insert_id = 0;
             String db_query = "INSERT INTO " + tablename + " (" + fields + ") VALUES(" + values + ")";
             if(this.OpenDBConnection())
             {
                 MySqlCommand insertCmd = new MySqlCommand(db_query, db_connection);
                 insertCmd.ExecuteNonQuery();
+                insert_id = (int)insertCmd.LastInsertedId;
                 this.CloseDBConnection();
             }
             else
             {
                 Console.WriteLine("Connection errror at InsertRecord.");
             }
+
+            return insert_id;
 
         }
 
@@ -128,7 +132,7 @@ namespace CardiacRehab
         /// <param name="condition">Condition given to find the existing record. (eg. id=2...etc)</param>
         public void UpdateRecord(String tablename, String updateInfo, String condition)
         {
-            String updateQuery = "UPDATE " + tablename + "SET " + updateInfo + " WHERE " + condition;
+            String updateQuery = "UPDATE " + tablename + " SET " + updateInfo + " WHERE " + condition;
 
             if(this.OpenDBConnection())
             {

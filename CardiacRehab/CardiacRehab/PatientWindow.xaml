@@ -33,7 +33,7 @@
                 <WebBrowser x:Name="UnityWindow" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                             ScrollViewer.CanContentScroll="False" 
                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                            ScrollViewer.VerticalScrollBarVisibility="Hidden" LoadCompleted="UnityWindow_LoadCompleted"></WebBrowser>
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden"></WebBrowser>
             </Border>
             <Border Background="#FFF5F3F3" BorderBrush="#FFF5F3F3" BorderThickness="5" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" CornerRadius="10" Opacity="0.8" Grid.Column="1" Grid.Row="2">
                 <Canvas HorizontalAlignment="Center" Height="279" Margin="0" VerticalAlignment="Center" Width="324">

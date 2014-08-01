@@ -20,6 +20,9 @@ namespace CardiacRehab
     /// </summary>
     public partial class Login : Window
     {
+        int sessionID;
+        String recordValues;
+
         public Login()
         {
             InitializeComponent();
@@ -42,14 +45,21 @@ namespace CardiacRehab
                 if(result[1][0] == "Patient")
                 {
                     Console.WriteLine("Patient Login");
-                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid);
+
+                    recordValues = userid.ToString() + ",  NOW(), 0";
+                    sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
+
+                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID);
                     patientWindow.Show();
                     patientWindow.Closed += new EventHandler(MainWindowClosed);
                     this.Hide();
                 }
                 else if(result[1][0] == "Doctor")
                 {
-                    DoctorWindow doctorWindow = new DoctorWindow(userid);
+                    recordValues = userid.ToString() + ",  NOW(), 0";
+                    sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
+
+                    DoctorWindow doctorWindow = new DoctorWindow(userid, sessionID);
                     doctorWindow.Show();
                     doctorWindow.Closed += new EventHandler(MainWindowClosed);
                     this.Hide();
@@ -69,6 +79,8 @@ namespace CardiacRehab
         private void MainWindowClosed(object sender, EventArgs e)
         {
             Console.WriteLine("Closing loginwindow");
+            DatabaseClass db = new DatabaseClass();
+            db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + sessionID.ToString());
             this.Close();
         }
     }

@@ -49,10 +49,10 @@ FOREIGN KEY(staff_id) REFERENCES authentication(id) ON DELETE CASCADE
 
 CREATE TABLE IF NOT EXISTS patient_session(
 id int(10) NOT NULL AUTO_INCREMENT,
-patient_id int(10) NOT NULL,
-staff_id int(10) NOT NULL,
+patient_id int(10),
+staff_id int(10),
 date_start datetime NOT NULL,
-date_end datetime NOT NULL,
+date_end datetime,
 chosen_level int(10),
 PRIMARY KEY(id),
 FOREIGN KEY(patient_id) REFERENCES authentication(id) ON DELETE CASCADE,
@@ -94,31 +94,7 @@ FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
 
 CREATE TABLE IF NOT EXISTS ecg_data(
 id int(10) NOT NULL AUTO_INCREMENT,
-ecg1 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg2 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg3 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg4 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg5 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg6 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg7 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg8 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg9 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg10 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg11 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg12 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg13 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg14 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg15 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg16 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg17 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg18 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg19 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg20 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg21 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg22 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg23 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg24 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
-ecg25 varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
+ecg_data varchar(300) NOT NULL, /* varchar b/c it will be encrypted */
 session_id int(10) NOT NULL,
 PRIMARY KEY(id),
 FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
