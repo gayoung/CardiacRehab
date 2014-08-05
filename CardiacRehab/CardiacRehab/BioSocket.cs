@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -267,10 +269,27 @@ namespace CardiacRehab
 
             if(url != "")
             {
-                using (var wb = new WebClient())
+                //using (var wb = new WebClient())
+                //{
+                //    var response = wb.UploadValues(url, "POST", postdata);
+                //}
+
+                String jsonData = JsonConvert.SerializeObject(postdata);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                request.Method = "POST";
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentLength = jsonData.Length;
+                byte[] bytedata = encoding.GetBytes(jsonData);
+
+                using (Stream stream = request.GetRequestStream())
                 {
-                    var response = wb.UploadValues(url, "POST", postdata);
+                    stream.Write(bytedata, 0, bytedata.Length);
                 }
+
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                string responsestring = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                MessageBox.Show(responsestring);
             }
             else
             {
