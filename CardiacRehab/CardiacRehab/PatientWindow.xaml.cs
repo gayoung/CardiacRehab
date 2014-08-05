@@ -47,11 +47,6 @@ namespace CardiacRehab
         public Socket unitySocketListener;
         public Socket unitySocketWorker = null;
 
-        int[] oxdata = new int[1000];
-        int[] hrdata = new int[1000];
-        int[] bpdata = new int[1000];
-        public int hrcount, oxcount, bpcount;
-
         //kinect sensor 
         private KinectSensorChooser sensorChooser;
 
@@ -65,11 +60,11 @@ namespace CardiacRehab
         private WriteableBitmap outputImage;
         private byte[] pixels = new byte[0];
 
+        private AudioClient _audioClient;
+
         WaveOut wo = new WaveOut();
         WaveFormat wf = new WaveFormat(16000, 1);
         BufferedWaveProvider mybufferwp = null;
-
-        private AudioClient _audioClient;
 
         TextWriter _writer;
 
@@ -312,8 +307,6 @@ namespace CardiacRehab
                     bool result = Int32.TryParse(data[1], out number);
                     if (result)
                     {
-                        hrdata[hrcount] = Convert.ToInt32(data[1]);
-                        hrcount++;
                         // remove null char
                         hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = data[1].Replace("\0", "").Trim() + " bpm"));
                     }
@@ -325,9 +318,6 @@ namespace CardiacRehab
                 {
                     if (data.Length > 1)
                     {
-                        //BT
-                        oxdata[oxcount] = Convert.ToInt32(data[1]); ;
-                        oxcount++;
                         // MethodInvoker had to be used to solve cross threading issue
                         if (data[1] != null && data[2] != null)
                         {
@@ -340,9 +330,6 @@ namespace CardiacRehab
             }
             else if (socketPortNumber == 4445)
             {
-                //BT
-                bpdata[bpcount] = Convert.ToInt32(data[1]); ;
-                bpcount++;
                 bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = data[1] + "/" + data[2]));
             }
         }

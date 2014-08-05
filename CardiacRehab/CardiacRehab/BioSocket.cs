@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -131,13 +132,8 @@ namespace CardiacRehab
 
                     window.ProcessBioSocketData(tmp, PortNumber);
                     InsertDataToDb(tmp);
+                    PostBioData(tmp);
 
-                    // if the data received is not related to the bike, then 
-                    // push the data upto the server by HTTP POST
-                    if (PortNumber != 4447)
-                    {
-                        PostBioData(tmp);
-                    }
                     WaitForBioData(bioSocketWorker);
                 }
             }
@@ -226,22 +222,59 @@ namespace CardiacRehab
         private void PostBioData(String data)
         {
             String url = "";
+            String[] datainfo = data.Trim().Split(' ');
+            var postdata = new NameValueCollection();
+
 
             // later change this to get IP address of the DNS server
             switch (PortNumber)
             {
                 case 4444:
                     url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/others";
+                    if(datainfo[0].Trim() == "HR")
+                    {
+                        postdata["hr"] = datainfo[1].Trim();
+                    }
+                    else if(datainfo[0].Trim() == "OX")
+                    {
+                        postdata["ox"] = datainfo[1].Trim();
+                    }
                     break;
                 case 4445:
                     url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/bp";
+                    postdata["bp"] = data.Trim();
                     break;
                 case 4446:
                     url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/ecg";
+                    postdata["ecg"] = data.Trim();
                     break;
                 case 4447:
                     url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/bike";
+                    if (datainfo[0].Trim() == "PW")
+                    {
+                        postdata["pw"] = datainfo[1].Trim();
+                    }
+                    else if (datainfo[0].Trim() == "WR")
+                    {
+                        postdata["wr"] = datainfo[1].Trim();
+                    }
+                    else if (datainfo[0].Trim() == "CR")
+                    {
+                        postdata["cr"] = datainfo[1].Trim();
+                    }
                     break;
+            }
+
+            if(url != "")
+            {
+                using (var wb = new WebClient())
+                {
+                    var response = wb.UploadValues(url, "POST", postdata);
+                }
+            }
+            else
+            {
+                Console.WriteLine("POST URL is not initialized");
             }
         }
     }
