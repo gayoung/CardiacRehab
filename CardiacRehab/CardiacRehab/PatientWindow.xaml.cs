@@ -377,7 +377,7 @@ namespace CardiacRehab
             {
                 unitySocketListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPAddress addy = System.Net.IPAddress.Parse("127.0.0.1");
-                IPEndPoint iplocal = new IPEndPoint(addy, 4445);
+                IPEndPoint iplocal = new IPEndPoint(addy, 5555);
                 //bind to local IP Address
                 unitySocketListener.Bind(iplocal);
                 //start listening -- 4 is max connections queue, can be changed

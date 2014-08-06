@@ -76,6 +76,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BioSocket.cs" />
+    <Compile Include="HttpRequestClass.cs" />
     <Compile Include="TextBoxStreamWriter.cs" />
     <Page Include="DoctorWindow.xaml">
       <SubType>Designer</SubType>

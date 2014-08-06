@@ -134,8 +134,9 @@ namespace CardiacRehab
 
                     window.ProcessBioSocketData(tmp, PortNumber);
                     InsertDataToDb(tmp);
-                    PostBioData(tmp);
 
+                    HttpRequestClass postreq = new HttpRequestClass();
+                    postreq.PostBioData(tmp, PortNumber, patientindex);
                     WaitForBioData(bioSocketWorker);
                 }
             }
@@ -221,80 +222,6 @@ namespace CardiacRehab
         }
 
         // send HTTP POST
-        private void PostBioData(String data)
-        {
-            String url = "";
-            String[] datainfo = data.Trim().Split(' ');
-            var postdata = new NameValueCollection();
-
-
-            // later change this to get IP address of the DNS server
-            switch (PortNumber)
-            {
-                case 4444:
-                    url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/others";
-                    if(datainfo[0].Trim() == "HR")
-                    {
-                        postdata["hr"] = datainfo[1].Trim();
-                    }
-                    else if(datainfo[0].Trim() == "OX")
-                    {
-                        postdata["ox"] = datainfo[1].Trim();
-                    }
-                    break;
-                case 4445:
-                    url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/bp";
-                    postdata["bp"] = data.Trim();
-                    break;
-                case 4446:
-                    url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/ecg";
-                    postdata["ecg"] = data.Trim();
-                    break;
-                case 4447:
-                    url = "http://192.168.0.105/patients/" + patientindex.ToString() + "/biodata/bike";
-                    if (datainfo[0].Trim() == "PW")
-                    {
-                        postdata["pw"] = datainfo[1].Trim();
-                    }
-                    else if (datainfo[0].Trim() == "WR")
-                    {
-                        postdata["wr"] = datainfo[1].Trim();
-                    }
-                    else if (datainfo[0].Trim() == "CR")
-                    {
-                        postdata["cr"] = datainfo[1].Trim();
-                    }
-                    break;
-            }
-
-            if(url != "")
-            {
-                //using (var wb = new WebClient())
-                //{
-                //    var response = wb.UploadValues(url, "POST", postdata);
-                //}
-
-                String jsonData = JsonConvert.SerializeObject(postdata);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                ASCIIEncoding encoding = new ASCIIEncoding();
-                request.Method = "POST";
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.ContentLength = jsonData.Length;
-                byte[] bytedata = encoding.GetBytes(jsonData);
-
-                using (Stream stream = request.GetRequestStream())
-                {
-                    stream.Write(bytedata, 0, bytedata.Length);
-                }
-
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                string responsestring = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                MessageBox.Show(responsestring);
-            }
-            else
-            {
-                Console.WriteLine("POST URL is not initialized");
-            }
-        }
+        
     }
 }
