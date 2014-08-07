@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace CardiacRehab
 {
@@ -24,10 +25,14 @@ namespace CardiacRehab
     /// </summary>
     public partial class Login : Window
     {
-        int sessionID;
+        int sessionID = 0;
+        int chosenIndex;
+        int userid;
         String recordValues;
         String wirelessIP;
-        String webData;
+        String docID;
+
+        private DispatcherTimer mimicPhoneTimer;
 
         public Login()
         {
@@ -70,7 +75,7 @@ namespace CardiacRehab
         {
             String username = usernameinput.Text.Trim();
             String password = passwordinput.Password.Trim();
-            int chosenIndex = indexinput.SelectedIndex;
+            chosenIndex = indexinput.SelectedIndex;
 
             // database connection and check login info
             DatabaseClass db = new DatabaseClass();
@@ -79,28 +84,39 @@ namespace CardiacRehab
             // found the user in the DB Record
             if (result[0].Count() > 0)
             {
-                int userid = int.Parse(result[0][0].Trim());
+                userid = int.Parse(result[0][0].Trim());
 
-                HttpRequestClass postrequest = new HttpRequestClass();
-                postrequest.PostContactInfo(wirelessIP, username);
-                webData = postrequest.GetPostData("http://192.168.0.105:5050/users/contacts/");
+                // POST the user's information
+                //HttpRequestClass postrequest = new HttpRequestClass();
+                //postrequest.PostContactInfo(wirelessIP, username, result[1][0].Trim());
+                //String webData = postrequest.GetPostData("http://192.168.0.105:5050/users/contacts/");
 
-                Console.WriteLine("POST data from the URL: " + webData);
-      
+                // JSON --> Class
+                //ContactInfo postdata = JsonConvert.DeserializeObject<ContactInfo>(webData);
+
                 if(result[1][0] == "Patient")
                 {
-                    Console.WriteLine("Patient Login");
+                    // get doctor DB ID
+                    List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
+                    docID = patientResult[0][0].Trim();
 
-                    recordValues = userid.ToString() + ",  NOW(), 0";
-                    sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
+                    InitTimer();
 
-                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID);
-                    patientWindow.Show();
-                    patientWindow.Closed += new EventHandler(MainWindowClosed);
-                    this.Hide();
+                    // post current patient's info
+                    HttpRequestClass postrequest = new HttpRequestClass();
+                    postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID + 
+                        "/patients/" + userid.ToString() + "/", wirelessIP, username);
+
+                    warning_label.Content = "Waiting for the Clinician...";
+                    warning_label.Visibility = System.Windows.Visibility.Visible;
                 }
                 else if(result[1][0] == "Doctor")
                 {
+                    // POST current IP to doctor/<int:dbid>/
+                    // change below code to open PatientList window
+                    // (PatientList window will query the db for all patients under this doc & check for
+                    // their data at doctors/<dbid>/patients/<dbid> )
+
                     recordValues = userid.ToString() + ",  NOW(), 0";
                     sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
 
@@ -127,6 +143,73 @@ namespace CardiacRehab
             DatabaseClass db = new DatabaseClass();
             db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + sessionID.ToString());
             this.Close();
+        }
+
+        /// <summary>
+        /// This method is used to retrieve the ip address of the doctor from a designated URL.
+        /// It uses the patient database ID to query the database ID of the clinician linked to the
+        /// patient (i.e. the clinician that created this patient's account) and checks for the
+        /// IP address of the clinician at the designated URL. (If the clinician has logged in,
+        /// then the IP address will have been posted up on the URL)
+        /// </summary>
+        /// <param name="patientid"> Database ID of the patient</param>
+        /// <returns> IP address of the clinician if it exists. Otherwise an empty string. </returns>
+        private ContactInfo GetDoctorInfo()
+        {
+            // check for doctor IP
+            HttpRequestClass getDoc = new HttpRequestClass();
+            // later change the host name...
+            String docinfo = getDoc.GetPostData("http://192.168.0.105:5050/doctors/" + docID + "/").Trim();
+
+            ContactInfo docData = new ContactInfo();
+
+            if (docinfo != "\"no data\"")
+            {
+                docData = JsonConvert.DeserializeObject<ContactInfo>(docinfo);
+                Console.WriteLine(docData.address);
+            }
+            else
+            {
+                Console.WriteLine("no data was sent");
+            }
+
+            return docData;
+        }
+
+        public void InitTimer()
+        {
+            mimicPhoneTimer = new System.Windows.Threading.DispatcherTimer();
+            mimicPhoneTimer.Tick += new EventHandler(mimicPhoneTimer_Tick);
+            mimicPhoneTimer.Interval = new TimeSpan(0, 0, 5); ; // 2 seconds
+            mimicPhoneTimer.Start();
+        }
+
+        /// <summary>
+        /// Function called by the timer class.
+        /// This method is called every 10 seconds.
+        /// *** EXPERIMENTAL CODE *** NOT TESTED!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void mimicPhoneTimer_Tick(object sender, EventArgs e)
+        {
+            ContactInfo currentdocInfo = GetDoctorInfo();
+
+            if(currentdocInfo.session != 0)
+            {
+                warning_label.Content = "Connected!";
+                warning_label.Visibility = System.Windows.Visibility.Visible;
+
+                sessionID = currentdocInfo.session;
+                String doctorIP = currentdocInfo.address;
+
+                mimicPhoneTimer.Stop();
+
+                PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, doctorIP, wirelessIP);
+                patientWindow.Show();
+                patientWindow.Closed += new EventHandler(MainWindowClosed);
+                this.Hide();
+            }
         }
     }
 }

@@ -12,23 +12,23 @@ namespace CardiacRehab
 
     public class ContactInfo
     {
-        public String ipAddress;
         public String name;
+        public String address;
+        public int session = 0; // DB ID of the session
     }
 
     class HttpRequestClass
     {
-        public void PostContactInfo(String ip, String username)
+        // add session
+        public void PostContactInfo(String url, String ip, String username)
         {
             ContactInfo contact = new ContactInfo();
-            contact.ipAddress = ip;
+            contact.address = ip;
             contact.name = username;
 
             String jsonData = JsonConvert.SerializeObject(contact);
 
-            Console.WriteLine("JSON data: " + jsonData);
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://192.168.0.105:5050/users/contacts/");
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             ASCIIEncoding encoding = new ASCIIEncoding();
             request.Method = "POST";
             request.ContentType = "text/json";

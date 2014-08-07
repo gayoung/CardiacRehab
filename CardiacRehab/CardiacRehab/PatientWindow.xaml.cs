@@ -37,7 +37,7 @@ namespace CardiacRehab
         private int sessionID;
         // currently under assumption that
         // first output from the loop is LAN and second is wireless
-        private String doctorIp = "192.168.184.5";
+        private String doctorIp;
         private String wirelessIP;
 
         private int patientIndex;
@@ -77,13 +77,14 @@ namespace CardiacRehab
         /// Constructor for this class
         /// </summary>
         /// <param name="currentuser"> database ID for the current user</param>
-        public PatientWindow(int chosen, int currentuser, int session)
+        public PatientWindow(int chosen, int currentuser, int session, String docIP, String wireless)
         {
             user = currentuser;
             patientIndex = chosen + 1;
             sessionID = session;
+            doctorIp = docIP;
+            wirelessIP = wireless;
 
-            GetLocalIP();
             InitializeComponent();
 
             //_writer = new TextBoxStreamWriter(txtMessage);
@@ -171,31 +172,6 @@ namespace CardiacRehab
         private void mimicPhoneTimer_Tick(object sender, EventArgs e)
         {
             PhoneTestMethod();
-        }
-
-        /// <summary>
-        /// This method is used to get both LAN and wireless IP of the current user
-        /// </summary>
-        private void GetLocalIP()
-        {
-            IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
-            int Ipcounter = 0;
-            foreach (IPAddress addr in localIPs)
-            {
-                if (addr.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    if (Ipcounter == 0)
-                    {
-                        //patientLocalIp = addr.ToString();
-                        wirelessIP = addr.ToString();
-                    }
-                    else if (Ipcounter == 1)
-                    {
-                        wirelessIP = addr.ToString();
-                    }
-                    Ipcounter++;
-                }
-            }
         }
 
         /// <summary>

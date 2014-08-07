@@ -15,20 +15,31 @@ def flask_post_json():
     else:
         return json.loads(request.form.keys()[0])
 
-class HandleContacts(Resource):
-    def get(self):
+class doctorContacts(Resource):
+    def get(self, clinician_id):
 		if(len(contacts) != 0):
-			return {"address": contacts["address"], "name": contacts["name"]}
+			return {clinician_id: {"address": contacts["address"], "name": contacts["name"]}}
 		else:
 			return "no data"
 
-    def post(self):
+    def post(self, clinician_id):
 		data = flask_post_json()
-		contacts["address"] = data['ipAddress']
+		contacts["address"] = data['address']
 		contacts["name"] = data["name"]
-		return {"ipaddress": data['ipAddress'], "name": data["name"]}
+		return {clinician_id : {"address": data['address'], "name": data["name"]}}
+		
+class patientContacts(Resource):
+	def get(self, clinician_id, patient_id):
+		return "get test"
+	
+	def post(self, clinician_id, patient_id):
+		data = flask_post_json()
+		print data["address"]
+		print data["name"]
+		return "post test"
 
-api.add_resource(HandleContacts, '/users/contacts/')
+api.add_resource(doctorContacts, '/doctors/<int:clinician_id>/')
+api.add_resource(patientContacts, '/doctors/<int:clinician_id>/patients/<int:patient_id>/')
 
 if __name__ == '__main__':
     app.run(host='192.168.0.105', port=5050)
