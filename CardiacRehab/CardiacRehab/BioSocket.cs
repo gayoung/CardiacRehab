@@ -135,8 +135,6 @@ namespace CardiacRehab
                     window.ProcessBioSocketData(tmp, PortNumber);
                     InsertDataToDb(tmp);
 
-                    HttpRequestClass postreq = new HttpRequestClass();
-                    postreq.PostBioData(tmp, PortNumber, patientindex);
                     WaitForBioData(bioSocketWorker);
                 }
             }

@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,11 +26,44 @@ namespace CardiacRehab
     {
         int sessionID;
         String recordValues;
+        String wirelessIP;
+        String webData;
 
         public Login()
         {
             InitializeComponent();
+            GetLocalIP();
             FocusManager.SetFocusedElement(loginscreen, usernameinput);
+        }
+
+        public class TestIp
+        {
+            public String ipaddress;
+        }
+
+        /// <summary>
+        /// This method is used to get both LAN and wireless IP of the current user
+        /// </summary>
+        private void GetLocalIP()
+        {
+            IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+            int Ipcounter = 0;
+            foreach (IPAddress addr in localIPs)
+            {
+                if (addr.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    if (Ipcounter == 0)
+                    {
+                        //patientLocalIp = addr.ToString();
+                        wirelessIP = addr.ToString();
+                    }
+                    else if (Ipcounter == 1)
+                    {
+                        wirelessIP = addr.ToString();
+                    }
+                    Ipcounter++;
+                }
+            }
         }
 
         private void login_button_Click(object sender, RoutedEventArgs e)
@@ -39,9 +76,17 @@ namespace CardiacRehab
             DatabaseClass db = new DatabaseClass();
             List<String>[] result = db.SelectRecords("id, role", "authentication", "username='" + username + "' AND password='" + password + "'");
 
+            // found the user in the DB Record
             if (result[0].Count() > 0)
             {
                 int userid = int.Parse(result[0][0].Trim());
+
+                HttpRequestClass postrequest = new HttpRequestClass();
+                postrequest.PostContactInfo(wirelessIP, username);
+                webData = postrequest.GetPostData("http://192.168.0.105:5050/users/contacts/");
+
+                Console.WriteLine("POST data from the URL: " + webData);
+      
                 if(result[1][0] == "Patient")
                 {
                     Console.WriteLine("Patient Login");
