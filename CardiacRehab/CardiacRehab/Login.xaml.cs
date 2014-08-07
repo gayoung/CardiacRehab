@@ -80,6 +80,7 @@ namespace CardiacRehab
             // database connection and check login info
             DatabaseClass db = new DatabaseClass();
             List<String>[] result = db.SelectRecords("id, role", "authentication", "username='" + username + "' AND password='" + password + "'");
+            HttpRequestClass postrequest = new HttpRequestClass();
 
             // found the user in the DB Record
             if (result[0].Count() > 0)
@@ -103,7 +104,6 @@ namespace CardiacRehab
                     InitTimer();
 
                     // post current patient's info
-                    HttpRequestClass postrequest = new HttpRequestClass();
                     postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID + 
                         "/patients/" + userid.ToString() + "/", wirelessIP, username);
 
@@ -112,17 +112,23 @@ namespace CardiacRehab
                 }
                 else if(result[1][0] == "Doctor")
                 {
-                    // POST current IP to doctor/<int:dbid>/
+                    postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + userid +
+                        "/", wirelessIP, "");
                     // change below code to open PatientList window
                     // (PatientList window will query the db for all patients under this doc & check for
                     // their data at doctors/<dbid>/patients/<dbid> )
 
-                    recordValues = userid.ToString() + ",  NOW(), 0";
-                    sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
+                    //recordValues = userid.ToString() + ",  NOW(), 0";
+                    //sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
 
-                    DoctorWindow doctorWindow = new DoctorWindow(userid, sessionID);
-                    doctorWindow.Show();
-                    doctorWindow.Closed += new EventHandler(MainWindowClosed);
+                    //DoctorWindow doctorWindow = new DoctorWindow(userid, sessionID);
+                    //doctorWindow.Show();
+                    //doctorWindow.Closed += new EventHandler(MainWindowClosed);
+                    //this.Hide();
+
+                    PatientList listwindow = new PatientList();
+                    listwindow.Show();
+                    listwindow.Closed += new EventHandler(MainWindowClosed);
                     this.Hide();
                 }
                 else if(result[1][0] == "Admin")
@@ -140,8 +146,8 @@ namespace CardiacRehab
         private void MainWindowClosed(object sender, EventArgs e)
         {
             Console.WriteLine("Closing loginwindow");
-            DatabaseClass db = new DatabaseClass();
-            db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + sessionID.ToString());
+            //DatabaseClass db = new DatabaseClass();
+            //db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + sessionID.ToString());
             this.Close();
         }
 
