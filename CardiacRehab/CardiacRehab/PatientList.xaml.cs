@@ -49,27 +49,42 @@ namespace CardiacRehab
             for(int i = 1; i < 7; i++)
             {
                 Label label = (Label)this.FindName("patient_status" + i.ToString());
-                String content = label.Content.ToString();
-
-                if(!content.Contains("Waiting for connection"))
+                if(label != null)
                 {
-                    connected[connected_index] = "patient_status" + i.ToString();
-                    connected_index++;
+                    String content = label.Content.ToString();
+
+                    if (!content.Contains("Waiting for connection"))
+                    {
+                        connected[connected_index] = "patient_status" + i.ToString();
+                        connected_index++;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Label is null");
+                    Console.WriteLine("Label:  patient_status" + i.ToString());
                 }
             }
 
-            if(connected.Length == maxNum)
+            if(connected != null)
             {
-                MessageBox.Show("GOT EVERYONE!");
-            }
-            else if(connected.Length < maxNum)
-            {
-                int difference = maxNum - connected.Length;
-                MessageBox.Show("Missing " + difference.ToString() + " patients!");
+                if (connected.Length == maxNum)
+                {
+                    MessageBox.Show("GOT EVERYONE!");
+                }
+                else if (connected.Length < maxNum)
+                {
+                    int difference = maxNum - connected.Length;
+                    MessageBox.Show("Missing " + difference.ToString() + " patients!");
+                }
+                else
+                {
+                    MessageBox.Show("Something went wrong!");
+                }
             }
             else
             {
-                MessageBox.Show("Something went wrong!");
+                MessageBox.Show("No Patients are connected");
             }
         }
     }
