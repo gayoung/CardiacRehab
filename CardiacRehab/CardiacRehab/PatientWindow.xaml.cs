@@ -44,8 +44,8 @@ namespace CardiacRehab
         private DispatcherTimer mimicPhoneTimer;
 
         public Socket socketToClinician = null;
-        public Socket unitySocketListener;
-        public Socket unitySocketWorker = null;
+        //public Socket unitySocketListener;
+        //public Socket unitySocketWorker = null;
 
         //kinect sensor 
         private KinectSensorChooser sensorChooser;
@@ -68,10 +68,15 @@ namespace CardiacRehab
 
         TextWriter _writer;
 
+        UnitySocket unityBikeSocket = null;
+        UnitySocket turnSocket = null;
+
         BioSocket otherSocket;
         BioSocket bpSocket;
         BioSocket ecgSocket;
         BioSocket bikeSocket;
+
+        PhidgetEncoder rotary_encoder;
 
         /// <summary>
         /// Constructor for this class
@@ -87,12 +92,18 @@ namespace CardiacRehab
 
             InitializeComponent();
 
-            //_writer = new TextBoxStreamWriter(txtMessage);
-            //Console.SetOut(_writer);
+            _writer = new TextBoxStreamWriter(txtMessage);
+            Console.SetOut(_writer);
 
-            ConnectToUnity();
-            InitializeVR();
+            //ConnectToUnity();
+            //unityBikeSocket = new UnitySocket(5555);
+            //unityBikeSocket.ConnectToUnity();
+            //turnSocket = new UnitySocket(5556);
+            //turnSocket.ConnectToUnity();
 
+            //InitializeVR();
+
+            rotary_encoder = new PhidgetEncoder();
            
             //CreateSocketConnection();
 
@@ -221,26 +232,26 @@ namespace CardiacRehab
                 //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 //socketToClinician.Send(dataToClinician);
 
-                if (unitySocketWorker != null)
+                if (unityBikeSocket.unitySocketWorker != null)
                 {
-                    if (unitySocketWorker.Connected)
+                    if (unityBikeSocket.unitySocketWorker.Connected)
                     {
                         // mock data sent to the Unity Application
                         data = "PW " + powerVal.ToString() + "\n";
                         dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                        unitySocketWorker.Send(dataToUnity);
+                        unityBikeSocket.unitySocketWorker.Send(dataToUnity);
 
                         data = "";
 
                         data = "WR " + speedVal.ToString() + "\n";
                         dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                        unitySocketWorker.Send(dataToUnity);
+                        unityBikeSocket.unitySocketWorker.Send(dataToUnity);
 
                         data = "";
 
                         data = "CR " + cadenceVal.ToString() + "\n";
                         dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                        unitySocketWorker.Send(dataToUnity);
+                        unityBikeSocket.unitySocketWorker.Send(dataToUnity);
                     }
                 }
             }
@@ -262,13 +273,13 @@ namespace CardiacRehab
 
             if (socketPortNumber == 4447)
             {
-                if (unitySocketWorker != null)
+                if (unityBikeSocket.unitySocketWorker != null)
                 {
-                    if (unitySocketWorker.Connected)
+                    if (unityBikeSocket.unitySocketWorker.Connected)
                     {
                         //Console.WriteLine("connected: "+tmp);
                         byte[] dataToUnity = System.Text.Encoding.ASCII.GetBytes(tmp);
-                        unitySocketWorker.Send(dataToUnity);
+                        unityBikeSocket.unitySocketWorker.Send(dataToUnity);
                     }
                 }
             }
@@ -347,43 +358,43 @@ namespace CardiacRehab
         /// This method creates a TCP connection to the external Unity application at
         /// IP address of 127.0.0.1(local host) and port 5555.
         /// </summary>
-        private void ConnectToUnity()
-        {
-            try
-            {
-                unitySocketListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPAddress addy = System.Net.IPAddress.Parse("127.0.0.1");
-                IPEndPoint iplocal = new IPEndPoint(addy, 5555);
-                //bind to local IP Address
-                unitySocketListener.Bind(iplocal);
-                //start listening -- 4 is max connections queue, can be changed
-                unitySocketListener.Listen(4);
-                unitySocketListener.BeginAccept(new AsyncCallback(OnUnitySocketConnection), null);
+        //private void ConnectToUnity()
+        //{
+        //    try
+        //    {
+        //        unitySocketListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        //        IPAddress addy = System.Net.IPAddress.Parse("127.0.0.1");
+        //        IPEndPoint iplocal = new IPEndPoint(addy, 5555);
+        //        //bind to local IP Address
+        //        unitySocketListener.Bind(iplocal);
+        //        //start listening -- 4 is max connections queue, can be changed
+        //        unitySocketListener.Listen(4);
+        //        unitySocketListener.BeginAccept(new AsyncCallback(OnUnitySocketConnection), null);
 
-                //create call back for client connections -- aka maybe recieve video here????
-            }
-            catch (SocketException e)
-            {
-                Console.WriteLine("SocketException thrown at ConnectToUnity");
-                Console.WriteLine(e.Message);
-            }
-        }
+        //        //create call back for client connections -- aka maybe recieve video here????
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Console.WriteLine("SocketException thrown at ConnectToUnity");
+        //        Console.WriteLine(e.Message);
+        //    }
+        //}
 
-        private void OnUnitySocketConnection(IAsyncResult asyn)
-        {
-            try
-            {
-                unitySocketWorker = unitySocketListener.EndAccept(asyn);
-            }
-            catch (ObjectDisposedException)
-            {
-                Console.WriteLine("OnSocketConnection: Socket has been closed", "error");
-            }
-            catch (SocketException e)
-            {
-                Console.WriteLine(e.Message, "error");
-            }
-        }
+        //private void OnUnitySocketConnection(IAsyncResult asyn)
+        //{
+        //    try
+        //    {
+        //        unitySocketWorker = unitySocketListener.EndAccept(asyn);
+        //    }
+        //    catch (ObjectDisposedException)
+        //    {
+        //        Console.WriteLine("OnSocketConnection: Socket has been closed", "error");
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Console.WriteLine(e.Message, "error");
+        //    }
+        //}
 
         #endregion
 

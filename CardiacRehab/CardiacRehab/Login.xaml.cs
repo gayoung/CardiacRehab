@@ -98,17 +98,22 @@ namespace CardiacRehab
                 if(result[1][0] == "Patient")
                 {
                     // get doctor DB ID
-                    List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
-                    docID = patientResult[0][0].Trim();
+                    //List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
+                    //docID = patientResult[0][0].Trim();
 
-                    InitTimer();
+                    //InitTimer();
 
-                    // post current patient's info
-                    postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID + 
-                        "/patients/" + userid.ToString() + "/", wirelessIP, username);
+                    //// post current patient's info
+                    //postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID + 
+                    //    "/patients/" + userid.ToString() + "/", wirelessIP, username);
 
-                    warning_label.Content = "Waiting for the Clinician...";
-                    warning_label.Visibility = System.Windows.Visibility.Visible;
+                    //warning_label.Content = "Waiting for the Clinician...";
+                    //warning_label.Visibility = System.Windows.Visibility.Visible;
+
+                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, "127.0.0.1", wirelessIP);
+                    patientWindow.Show();
+                    patientWindow.Closed += new EventHandler(MainWindowClosed);
+                    this.Hide();
                 }
                 else if(result[1][0] == "Doctor")
                 {

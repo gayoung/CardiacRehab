@@ -144,7 +144,9 @@ namespace CardiacRehab
             }
             else
             {
-
+                // there are some patients connected
+                // If have to hide the rectangle with connected patient, give user an option to continue and drop the
+                // existing connection with the patient or to cancel the selection
             }
         }
     }
