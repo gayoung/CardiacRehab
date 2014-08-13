@@ -11,6 +11,13 @@ namespace CardiacRehab
     class PhidgetEncoder
     {
         Phidgets.Encoder encoder;
+        int serialNumber = 0;
+        UnitySocket turnSocket;
+        String positionChange;
+        String time;
+        String encoderPosition;
+        String data;
+        Byte[] dataToUnity;
 
         public PhidgetEncoder()
         {
@@ -20,9 +27,11 @@ namespace CardiacRehab
             encoder.Detach += new DetachEventHandler(encoder_Detach);
             encoder.Error += new ErrorEventHandler(encoder_Error);
             encoder.PositionChange += new EncoderPositionChangeEventHandler(encoder_PositionChange);
-            
             encoder.open();
             encoder.waitForAttachment();
+
+            turnSocket = new UnitySocket(5556);
+            turnSocket.ConnectToUnity();
         }
 
         public void CloseEncoder()
@@ -35,14 +44,15 @@ namespace CardiacRehab
 
             encoder.close();
         }
-
+        
+        // this method is mostly for debugging purposes (to see the encoder attached)
+        // This method is mostly used for debugging purposes.
         void encoder_Attach(object sender, AttachEventArgs e)
         {
             Console.WriteLine("encoder attached");
             Phidgets.Encoder attached = (Phidgets.Encoder)sender;
             Console.WriteLine(attached.Attached.ToString());
             Console.WriteLine(attached.Name);
-            Console.WriteLine(attached.SerialNumber.ToString());
             Console.WriteLine(attached.Version.ToString());
             Console.WriteLine(attached.encoders.Count.ToString());
             Console.WriteLine(attached.inputs.Count.ToString());
@@ -69,17 +79,40 @@ namespace CardiacRehab
         //corresponding element in the encoder objects encoder collection could be used to calculate velocity...
         void encoder_PositionChange(object sender, EncoderPositionChangeEventArgs e)
         {
-            Console.WriteLine("Position Change: "+e.PositionChange.ToString());
+            positionChange = e.PositionChange.ToString();
+            Console.WriteLine("Position Change: " + positionChange);
+
             try
             {
-                Console.WriteLine("Time: "+e.Time.ToString());
+                time = e.Time.ToString();
+                Console.WriteLine("Time: " + time);
             }
             catch
             {
+                time = "Unknown";
                 Console.WriteLine("Unknown");
             }
 
-            Console.WriteLine("Encoder Position: "+encoder.encoders[e.Index].ToString());
+            encoderPosition = encoder.encoders[e.Index].ToString();
+            Console.WriteLine("Encoder Position: " + encoderPosition);
+
+            if(turnSocket.unitySocketWorker != null)
+            {
+                if(turnSocket.unitySocketWorker.Connected)
+                {
+                    data = "PC " + positionChange + "\n";
+                    dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                    turnSocket.unitySocketWorker.Send(dataToUnity);
+
+                    data = "Time " + time + "\n";
+                    dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                    turnSocket.unitySocketWorker.Send(dataToUnity);
+
+                    data = "EP " + encoderPosition + "\n";
+                    dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                    turnSocket.unitySocketWorker.Send(dataToUnity);
+                }
+            }
 
         }
 
