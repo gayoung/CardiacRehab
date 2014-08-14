@@ -100,15 +100,8 @@ namespace CardiacRehab
             {
                 if(turnSocket.unitySocketWorker.Connected)
                 {
-                    data = "PC " + positionChange + "\n";
-                    dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                    turnSocket.unitySocketWorker.Send(dataToUnity);
-
-                    data = "Time " + time + "\n";
-                    dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                    turnSocket.unitySocketWorker.Send(dataToUnity);
-
-                    data = "EP " + encoderPosition + "\n";
+                    // indicates if the rotation was CCW (+) or CW (-)
+                    data = positionChange + " " + time + " " + encoderPosition + "   \n";
                     dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
                     turnSocket.unitySocketWorker.Send(dataToUnity);
                 }

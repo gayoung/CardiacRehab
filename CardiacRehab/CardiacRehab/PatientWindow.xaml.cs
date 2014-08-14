@@ -95,8 +95,6 @@ namespace CardiacRehab
 
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
-            //turnSocket = new UnitySocket(5556);
-            //turnSocket.ConnectToUnity();
 
             InitializeVR();
 
@@ -119,7 +117,7 @@ namespace CardiacRehab
             
 
             // disable this function if InitializeBioSockets function is active
-            //InitTimer();
+            InitTimer();
         }
 
         private void PatientWindow_Loaded(object sender, RoutedEventArgs e)
