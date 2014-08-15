@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace CardiacRehab
 {
@@ -29,18 +31,90 @@ namespace CardiacRehab
         ///     3) update the list accordingly
         /// </summary>
 
-        int oldSelection = 5;
-        int newSelection = 0;
+        private int oldSelection = 5;
+        private int newSelection = 0;
+        private int doctorId;
+        private DispatcherTimer getPatientTimer;
+        private ContactInfo patientData;
+        private List<ContactInfo> connected_patients;
 
 
-        public PatientList()
+        public PatientList(int dbId)
         {
-            InitializeComponent();
+            doctorId = dbId;
+            connected_patients = new List<ContactInfo>();
 
+            InitializeComponent();
+            InitTimer();
+        }
+
+        public void InitTimer()
+        {
+            getPatientTimer = new System.Windows.Threading.DispatcherTimer();
+            getPatientTimer.Tick += new EventHandler(GetPatients);
+            getPatientTimer.Interval = new TimeSpan(0, 0, 5); ; // 10 seconds
+            getPatientTimer.Start();
+        }
+
+        private void GetPatients(object sender, EventArgs e)
+        {
+            DatabaseClass db = new DatabaseClass();
+            List<String>[] listOfPatients = db.SelectRecords("patient_id", "patient", "staff_id='" + doctorId.ToString() + "'");
+
+            HttpRequestClass getRequest = new HttpRequestClass();
+
+            String getData = "";
+            for(int i=0; i < listOfPatients[0].Count; i++)
+            {
+                getData = getRequest.GetPostData("http://192.168.0.105:5050/doctors/" + doctorId.ToString() + "/patients/" + listOfPatients[0][i] + "/");
+                if(!getData.Contains("no data"))
+                {
+                    patientData = JsonConvert.DeserializeObject<ContactInfo>(getData);
+                    Console.WriteLine(patientData.address);
+
+                    connected_patients.Add(patientData);
+                }
+            }
+
+            int labelIndex = 1;
+            for(int index=0; index < connected_patients.Count; index++)
+            {
+                Label label = (Label)this.FindName("patient_status" + labelIndex.ToString());
+
+                if (label != null)
+                {
+                    String content = label.Content.ToString();
+
+                    if (content.Contains("Waiting for connection"))
+                    {
+                        label.Content = "Username: " + connected_patients.ElementAt(index).name + " Connected!";
+                        Image checkMark = (Image) this.FindName("checkmark"+labelIndex);
+
+                        if(checkMark != null)
+                        {
+                            checkMark.Visibility = System.Windows.Visibility.Visible;
+                        }
+                        else
+                        {
+                            Console.WriteLine("checkmark image is null");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Label is null");
+                    Console.WriteLine("Label:  patient_status" + index.ToString());
+                }
+
+                labelIndex++;
+            }
+
+            connected_patients.Clear();
         }
 
         private void max_patients_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            List<String> connected = new List<String>();
             // dynamically change the list of patients
             // (need to check for the label content before to see if the patient has already connected when the
             // doctor changed the number of patients)
@@ -48,8 +122,7 @@ namespace CardiacRehab
             newSelection = max_patients.SelectedIndex;
 
             // find number of connected patients
-            String[] connected = null;
-            int connected_index = 0;
+           
             for(int i = 1; i < 7; i++)
             {
                 Label label = (Label)this.FindName("patient_status" + i.ToString());
@@ -59,8 +132,7 @@ namespace CardiacRehab
 
                     if (!content.Contains("Waiting for connection"))
                     {
-                        connected[connected_index] = "patient_status" + i.ToString();
-                        connected_index++;
+                        connected.Add("patient_status" + i.ToString());
                     }
                 }
                 else
@@ -70,15 +142,20 @@ namespace CardiacRehab
                 }
             }
 
+            if(connected.Count == 0)
+            {
+                connected = null;
+            }
+
             if(connected != null)
             {
-                if (connected.Length == newSelection)
+                if (connected.Count == newSelection)
                 {
                     MessageBox.Show("GOT EVERYONE!");
                 }
-                else if (connected.Length < newSelection)
+                else if (connected.Count < newSelection)
                 {
-                    int difference = newSelection - connected.Length;
+                    int difference = newSelection - connected.Count;
                     MessageBox.Show("Missing " + difference.ToString() + " patients!");
                 }
                 else
@@ -97,9 +174,6 @@ namespace CardiacRehab
 
         private void TogglePatientList(int old, int selected, String connected)
         {
-            Console.WriteLine("old: " + old.ToString());
-            Console.WriteLine("selected: " + selected.ToString());
-
             if(connected == "none")
             {
                 if(old > selected)
@@ -110,8 +184,6 @@ namespace CardiacRehab
                     for (int i = 0; i < diff; i++)
                     {
                         endNumber++;
-
-                        Console.WriteLine("Looking for: patient_rec" + endNumber.ToString());
 
                         Rectangle rec = (Rectangle)this.FindName("patient_rec" + endNumber.ToString().Trim());
                         rec.Visibility = System.Windows.Visibility.Hidden;
@@ -130,8 +202,6 @@ namespace CardiacRehab
                     {
                         endNumber++;
 
-                        Console.WriteLine("Looking for: patient_rec" + endNumber.ToString());
-
                         Rectangle rec = (Rectangle)this.FindName("patient_rec" + endNumber.ToString().Trim());
                         rec.Visibility = System.Windows.Visibility.Visible;
 
@@ -148,6 +218,11 @@ namespace CardiacRehab
                 // If have to hide the rectangle with connected patient, give user an option to continue and drop the
                 // existing connection with the patient or to cancel the selection
             }
+        }
+
+        private void start_session_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

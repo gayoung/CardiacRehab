@@ -37,7 +37,7 @@
         </ComboBox>
         <Label Content="patients..." HorizontalAlignment="Left" Height="40" Margin="184,29,0,0" VerticalAlignment="Top" Width="113" Foreground="#FFF9F4F4" FontFamily="Century" FontSize="18" Grid.Column="1" Grid.ColumnSpan="2"/>
         <Border BorderBrush="#FFF5F3F3" BorderThickness="5" HorizontalAlignment="Stretch" Margin="10" Height="Auto" VerticalAlignment="Stretch" Width="Auto" CornerRadius="10" Grid.Row="1" Grid.ColumnSpan="3" Grid.RowSpan="6"/>
-        <Button x:Name="start_session" Content="Start" HorizontalAlignment="Left" Margin="89,27,0,31" Width="111" BorderBrush="#FFF7FBF8" Foreground="#FF1B6406" BorderThickness="0" FontFamily="Century" FontWeight="Bold" Opacity="0.8" Background="#FFF4F9F4" Grid.Row="7" Grid.Column="1"/>
+        <Button x:Name="start_session" Content="Start" HorizontalAlignment="Left" Margin="89,27,0,31" Width="111" BorderBrush="#FFF7FBF8" Foreground="#FF1B6406" BorderThickness="0" FontFamily="Century" FontWeight="Bold" Opacity="0.8" Background="#FFF4F9F4" Grid.Row="7" Grid.Column="1" Click="start_session_Click"/>
         <Rectangle x:Name="patient_rec1" Grid.ColumnSpan="3" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="56" Margin="24,24,0,0" Grid.Row="1" Stroke="Black" VerticalAlignment="Top" Width="543"/>
         <Rectangle x:Name="patient_rec2" Grid.ColumnSpan="3" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="56" Margin="24,10,0,0" Grid.Row="2" Stroke="Black" VerticalAlignment="Top" Width="543"/>
         <Rectangle x:Name="patient_rec3" Grid.ColumnSpan="3" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="56" Margin="24,10,0,0" Grid.Row="3" Stroke="Black" VerticalAlignment="Top" Width="543"/>

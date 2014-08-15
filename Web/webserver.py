@@ -5,7 +5,8 @@ import json
 app = Flask(__name__)
 api = Api(app)
 
-contacts = {}
+patient_contacts = {}
+doc_contacts = {}
 
 def flask_post_json():
     if (request.json != None):
@@ -17,26 +18,29 @@ def flask_post_json():
 
 class doctorContacts(Resource):
     def get(self, clinician_id):
-		if(len(contacts) != 0):
-			return {clinician_id: {"address": contacts["address"], "name": contacts["name"]}}
+		if(len(doc_contacts) != 0):
+			return {"address": doc_contacts["address"], "name": doc_contacts["name"]}
 		else:
 			return "no data"
 
     def post(self, clinician_id):
 		data = flask_post_json()
-		contacts["address"] = data['address']
-		contacts["name"] = data["name"]
-		return {clinician_id : {"address": data['address'], "name": data["name"]}}
+		doc_contacts["address"] = data['address']
+		doc_contacts["name"] = data["name"]
+		return {"address": data['address'], "name": data["name"]}
 		
 class patientContacts(Resource):
 	def get(self, clinician_id, patient_id):
-		return "get test"
+		if(len(patient_contacts) != 0):
+			return {"address": patient_contacts["address"], "name": patient_contacts["name"]}
+		else:
+			return "no data"
 	
 	def post(self, clinician_id, patient_id):
 		data = flask_post_json()
-		print data["address"]
-		print data["name"]
-		return "post test"
+		patient_contacts["address"] = data["address"]
+		patient_contacts["name"] = data["name"]
+		return {"address": data['address'], "name": data["name"]}
 
 api.add_resource(doctorContacts, '/doctors/<int:clinician_id>/')
 api.add_resource(patientContacts, '/doctors/<int:clinician_id>/patients/<int:patient_id>/')

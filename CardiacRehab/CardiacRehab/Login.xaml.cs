@@ -32,7 +32,7 @@ namespace CardiacRehab
         String wirelessIP;
         String docID;
 
-        private DispatcherTimer mimicPhoneTimer;
+        private DispatcherTimer checkForDocTimer;
 
         public Login()
         {
@@ -98,22 +98,23 @@ namespace CardiacRehab
                 if(result[1][0] == "Patient")
                 {
                     // get doctor DB ID
-                    //List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
-                    //docID = patientResult[0][0].Trim();
+                    List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
+                    docID = patientResult[0][0].Trim();
 
-                    //InitTimer();
+                    InitTimer();
 
-                    //// post current patient's info
-                    //postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID + 
-                    //    "/patients/" + userid.ToString() + "/", wirelessIP, username);
+                    // post current patient's info
+                    postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID +
+                        "/patients/" + userid.ToString() + "/", wirelessIP, username);
 
-                    //warning_label.Content = "Waiting for the Clinician...";
-                    //warning_label.Visibility = System.Windows.Visibility.Visible;
+                    warning_label.Content = "Waiting for the Clinician...";
+                    warning_label.Visibility = System.Windows.Visibility.Visible;
 
-                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, "127.0.0.1", wirelessIP);
-                    patientWindow.Show();
-                    patientWindow.Closed += new EventHandler(MainWindowClosed);
-                    this.Hide();
+                    // below code is to use this application offline
+                    //PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, "127.0.0.1", wirelessIP);
+                    //patientWindow.Show();
+                    //patientWindow.Closed += new EventHandler(MainWindowClosed);
+                    //this.Hide();
                 }
                 else if(result[1][0] == "Doctor")
                 {
@@ -131,7 +132,7 @@ namespace CardiacRehab
                     //doctorWindow.Closed += new EventHandler(MainWindowClosed);
                     //this.Hide();
 
-                    PatientList listwindow = new PatientList();
+                    PatientList listwindow = new PatientList(userid);
                     listwindow.Show();
                     listwindow.Closed += new EventHandler(MainWindowClosed);
                     this.Hide();
@@ -189,10 +190,10 @@ namespace CardiacRehab
 
         public void InitTimer()
         {
-            mimicPhoneTimer = new System.Windows.Threading.DispatcherTimer();
-            mimicPhoneTimer.Tick += new EventHandler(mimicPhoneTimer_Tick);
-            mimicPhoneTimer.Interval = new TimeSpan(0, 0, 5); ; // 2 seconds
-            mimicPhoneTimer.Start();
+            checkForDocTimer = new System.Windows.Threading.DispatcherTimer();
+            checkForDocTimer.Tick += new EventHandler(mimicPhoneTimer_Tick);
+            checkForDocTimer.Interval = new TimeSpan(0, 0, 5); ; // 5 seconds
+            checkForDocTimer.Start();
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace CardiacRehab
                 sessionID = currentdocInfo.session;
                 String doctorIP = currentdocInfo.address;
 
-                mimicPhoneTimer.Stop();
+                checkForDocTimer.Stop();
 
                 PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, doctorIP, wirelessIP);
                 patientWindow.Show();
