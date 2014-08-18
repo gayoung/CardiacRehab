@@ -64,6 +64,8 @@ namespace CardiacRehab
 
             HttpRequestClass getRequest = new HttpRequestClass();
 
+            // this function needs to be improved... it fails if connected patient disconnects while waiting for
+            // the other patients to connect... it needs a better way to detect connected patients.
             String getData = "";
             for(int i=0; i < listOfPatients[0].Count; i++)
             {

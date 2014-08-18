@@ -20,7 +20,7 @@ class doctorContacts(Resource):
 	def get(self, clinician_id):
 		if(len(doc_contacts) != 0):
 			return {"address": doc_contacts["address"], "name": doc_contacts["name"], 
-			"id": doc_contacts["id"], "session": doc_contacts["session"], "assigned": doc_contacts["assigned_index"]}
+			"id": doc_contacts["id"], "session": doc_contacts["session"], "assigned": doc_contacts["assigned"]}
 		else:
 			return "no data"
 	
@@ -34,15 +34,15 @@ class doctorContacts(Resource):
 		return {"address": data['address'], "name": data["name"], "id": data["id"],
 		"session": data["session"], "assigned": data["assigned_index"]}
 		
-	def delete(self, clinician_id, patient_id):
-		doc_contacts = {}
-		return "Deleted"
+	def delete(self, clinician_id):
+		doc_contacts.clear()
+		return "no data", 204
 		
 class patientContacts(Resource):
 	def get(self, clinician_id, patient_id):
 		if(len(patient_contacts) != 0):
 			return {"address": patient_contacts["address"], "name": patient_contacts["name"],
-			"id": patient_contacts["id"], "session": patient_contacts["session"], "assigned": patient_contacts["assigned_index"]}
+			"id": patient_contacts["id"], "session": patient_contacts["session"], "assigned": patient_contacts["assigned"]}
 		else:
 			return "no data"
 	
@@ -57,8 +57,8 @@ class patientContacts(Resource):
 		"session": data["session"], "assigned": data["assigned_index"]}
 		
 	def delete(self, clinician_id, patient_id):
-		patient_contacts = {}
-		return "Deleted"
+		patient_contacts.clear()
+		return "no data", 204
 
 api.add_resource(doctorContacts, '/doctors/<int:clinician_id>/')
 api.add_resource(patientContacts, '/doctors/<int:clinician_id>/patients/<int:patient_id>/')
