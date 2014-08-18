@@ -31,6 +31,8 @@ namespace CardiacRehab
         String recordValues;
         String wirelessIP;
         String docID;
+        String currentRole = "";
+        String hostUrl = "http://192.168.0.102:5050/doctors/";
 
         private DispatcherTimer checkForDocTimer;
 
@@ -89,6 +91,7 @@ namespace CardiacRehab
 
                 if(result[1][0] == "Patient")
                 {
+                    currentRole = "Patient";
                     // get doctor DB ID
                     List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
                     docID = patientResult[0][0].Trim();
@@ -96,8 +99,7 @@ namespace CardiacRehab
                     InitTimer();
 
                     // post current patient's info
-                    postrequest.PostContactInfo("http://192.168.0.102:5050/doctors/" + docID +
-                        "/patients/" + userid.ToString() + "/", wirelessIP, username);
+                    postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", wirelessIP, username, 0, userid, 0);
 
                     warning_label.Content = "Waiting for the Clinician...";
                     warning_label.Visibility = System.Windows.Visibility.Visible;
@@ -110,8 +112,8 @@ namespace CardiacRehab
                 }
                 else if(result[1][0] == "Doctor")
                 {
-                    postrequest.PostContactInfo("http://192.168.0.102:5050/doctors/" + userid +
-                        "/", wirelessIP, "");
+                    currentRole = "Doctor";
+                    postrequest.PostContactInfo(hostUrl + userid + "/", wirelessIP, "", 0, userid, 0);
                     // change below code to open PatientList window
                     // (PatientList window will query the db for all patients under this doc & check for
                     // their data at doctors/<dbid>/patients/<dbid> )
@@ -163,7 +165,7 @@ namespace CardiacRehab
             // check for doctor IP
             HttpRequestClass getDoc = new HttpRequestClass();
             // later change the host name...
-            String docinfo = getDoc.GetPostData("http://192.168.0.105:5050/doctors/" + docID + "/").Trim();
+            String docinfo = getDoc.GetPostData(hostUrl + docID + "/").Trim();
 
             ContactInfo docData = new ContactInfo();
 
@@ -178,6 +180,24 @@ namespace CardiacRehab
             }
 
             return docData;
+        }
+
+        private int CheckSession()
+        {
+            HttpRequestClass getRequest = new HttpRequestClass();
+            String patientinfo = getRequest.GetPostData(hostUrl + docID + "/patients/" + userid.ToString() + "/").Trim();
+
+            ContactInfo patientData = new ContactInfo();
+            if(patientinfo != "\"no data\"")
+            {
+                patientData = JsonConvert.DeserializeObject<ContactInfo>(patientinfo);
+
+                return patientData.session;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public void InitTimer()
@@ -197,10 +217,11 @@ namespace CardiacRehab
         /// <param name="e"></param>
         private void mimicPhoneTimer_Tick(object sender, EventArgs e)
         {
-            ContactInfo currentdocInfo = GetDoctorInfo();
+            int session = CheckSession();
 
-            if(currentdocInfo.session != 0)
+            if(session != 0)
             {
+                ContactInfo currentdocInfo = GetDoctorInfo();
                 warning_label.Content = "Connected!";
                 warning_label.Visibility = System.Windows.Visibility.Visible;
 
@@ -215,5 +236,20 @@ namespace CardiacRehab
                 this.Hide();
             }
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            HttpRequestClass deleteRequest = new HttpRequestClass();
+            // HTTP DELETE the posted data
+            if(currentRole == "Patient")
+            {
+                deleteRequest.DeleteData(hostUrl + docID + "/patients/" + userid.ToString() + "/");
+            }
+            else if(currentRole == "Doctor")
+            {
+                deleteRequest.DeleteData(hostUrl + userid + "/");
+            }
+        }
+
     }
 }

@@ -37,6 +37,7 @@ namespace CardiacRehab
         private DispatcherTimer getPatientTimer;
         private ContactInfo patientData;
         private List<ContactInfo> connected_patients;
+        private String hosturl = "http://192.168.0.102:5050/doctors/";
 
 
         public PatientList(int dbId)
@@ -66,7 +67,7 @@ namespace CardiacRehab
             String getData = "";
             for(int i=0; i < listOfPatients[0].Count; i++)
             {
-                getData = getRequest.GetPostData("http://192.168.0.105:5050/doctors/" + doctorId.ToString() + "/patients/" + listOfPatients[0][i] + "/");
+                getData = getRequest.GetPostData(hosturl + doctorId.ToString() + "/patients/" + listOfPatients[0][i] + "/");
                 if(!getData.Contains("no data"))
                 {
                     patientData = JsonConvert.DeserializeObject<ContactInfo>(getData);
@@ -88,16 +89,9 @@ namespace CardiacRehab
                     if (content.Contains("Waiting for connection"))
                     {
                         label.Content = "Username: " + connected_patients.ElementAt(index).name + " Connected!";
-                        Image checkMark = (Image) this.FindName("checkmark"+labelIndex);
-
-                        if(checkMark != null)
-                        {
-                            checkMark.Visibility = System.Windows.Visibility.Visible;
-                        }
-                        else
-                        {
-                            Console.WriteLine("checkmark image is null");
-                        }
+                        
+                        ToggleCheckMark(labelIndex.ToString());
+                        AddPatientInfo(labelIndex.ToString(), connected_patients.ElementAt(index).address, connected_patients.ElementAt(index).id);
                     }
                 }
                 else
@@ -110,6 +104,43 @@ namespace CardiacRehab
             }
 
             connected_patients.Clear();
+        }
+
+        private void ToggleCheckMark(String index)
+        {
+            Image checkMark = (Image)this.FindName("checkmark" + index);
+
+            if (checkMark != null)
+            {
+                checkMark.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                Console.WriteLine("checkmark image is null");
+            }
+        }
+
+        private void AddPatientInfo(String index, String ip, int id)
+        {
+            Label ipAddress = (Label)this.FindName("patient_ip" + index);
+            if(ipAddress != null)
+            {
+                ipAddress.Content = ip;
+            }
+            else
+            {
+                Console.WriteLine("hidden ip label is null");
+            }
+
+            Label idLabel = (Label)this.FindName("patient_id" + index);
+            if (idLabel != null)
+            {
+                idLabel.Content = id.ToString();
+            }
+            else
+            {
+                Console.WriteLine("hidden id label is null");
+            }
         }
 
         private void max_patients_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -149,14 +180,16 @@ namespace CardiacRehab
 
             if(connected != null)
             {
-                if (connected.Count == newSelection)
+                if (connected.Count == newSelection+1)
                 {
                     MessageBox.Show("GOT EVERYONE!");
+                    TogglePatientList(oldSelection, newSelection, "none");
                 }
-                else if (connected.Count < newSelection)
+                else if (connected.Count < newSelection+1)
                 {
-                    int difference = newSelection - connected.Count;
+                    int difference = newSelection+1 - connected.Count;
                     MessageBox.Show("Missing " + difference.ToString() + " patients!");
+                    TogglePatientList(oldSelection, newSelection, "none");
                 }
                 else
                 {
@@ -220,9 +253,11 @@ namespace CardiacRehab
             }
         }
 
+        // start socket connections and video/audio connections with patients
+        // and insert session record and update to doctor/doctorID url with ContactInfo.session
         private void start_session_Click(object sender, RoutedEventArgs e)
         {
-
+            Console.WriteLine("start button pressed");
         }
     }
 }

@@ -14,17 +14,22 @@ namespace CardiacRehab
     {
         public String name;
         public String address;
+        public int id;
+        public int assigned_index;
         public int session = 0; // DB ID of the session
     }
 
     class HttpRequestClass
     {
         // add session
-        public void PostContactInfo(String url, String ip, String username)
+        public void PostContactInfo(String url, String ip, String username, int sessionID, int userid, int assigned)
         {
             ContactInfo contact = new ContactInfo();
             contact.address = ip;
             contact.name = username;
+            contact.session = sessionID;
+            contact.id = userid;
+            contact.assigned_index = assigned;
 
             String jsonData = JsonConvert.SerializeObject(contact);
 
@@ -49,5 +54,15 @@ namespace CardiacRehab
 
             return receivedData;
         }
+
+        public void DeleteData(String url)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "DELETE";
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+            Console.WriteLine("HTTP response: " + response.StatusCode.ToString());
+        }
+
     }
 }
