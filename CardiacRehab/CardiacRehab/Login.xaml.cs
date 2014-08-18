@@ -87,14 +87,6 @@ namespace CardiacRehab
             {
                 userid = int.Parse(result[0][0].Trim());
 
-                // POST the user's information
-                //HttpRequestClass postrequest = new HttpRequestClass();
-                //postrequest.PostContactInfo(wirelessIP, username, result[1][0].Trim());
-                //String webData = postrequest.GetPostData("http://192.168.0.105:5050/users/contacts/");
-
-                // JSON --> Class
-                //ContactInfo postdata = JsonConvert.DeserializeObject<ContactInfo>(webData);
-
                 if(result[1][0] == "Patient")
                 {
                     // get doctor DB ID
@@ -104,7 +96,7 @@ namespace CardiacRehab
                     InitTimer();
 
                     // post current patient's info
-                    postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + docID +
+                    postrequest.PostContactInfo("http://192.168.0.102:5050/doctors/" + docID +
                         "/patients/" + userid.ToString() + "/", wirelessIP, username);
 
                     warning_label.Content = "Waiting for the Clinician...";
@@ -118,7 +110,7 @@ namespace CardiacRehab
                 }
                 else if(result[1][0] == "Doctor")
                 {
-                    postrequest.PostContactInfo("http://192.168.0.105:5050/doctors/" + userid +
+                    postrequest.PostContactInfo("http://192.168.0.102:5050/doctors/" + userid +
                         "/", wirelessIP, "");
                     // change below code to open PatientList window
                     // (PatientList window will query the db for all patients under this doc & check for
