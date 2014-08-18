@@ -1,3 +1,7 @@
+/* 
+This code is needed for the other computers to connect to this local db server. 
+For now, this query needs to list all IP that will attempt to connect to this db server.
+*/
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.0.103' IDENTIFIED BY '';
 FLUSH PRIVILEGES;
 
