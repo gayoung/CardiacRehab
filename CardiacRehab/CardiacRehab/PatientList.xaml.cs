@@ -52,12 +52,12 @@ namespace CardiacRehab
         public void InitTimer()
         {
             getPatientTimer = new System.Windows.Threading.DispatcherTimer();
-            getPatientTimer.Tick += new EventHandler(GetPatients);
-            getPatientTimer.Interval = new TimeSpan(0, 0, 5); ; // 10 seconds
+            getPatientTimer.Tick += new EventHandler(GetConnecterdPatients);
+            getPatientTimer.Interval = new TimeSpan(0, 0, 5); ; // 5 seconds
             getPatientTimer.Start();
         }
 
-        private void GetPatients(object sender, EventArgs e)
+        private void GetConnecterdPatients(object sender, EventArgs e)
         {
             DatabaseClass db = new DatabaseClass();
             List<String>[] listOfPatients = db.SelectRecords("patient_id", "patient", "staff_id='" + doctorId.ToString() + "'");
@@ -78,9 +78,45 @@ namespace CardiacRehab
                     connected_patients.Add(patientData);
                 }
             }
+            ResetPatientList();
+            DisplayPatientList();
+        }
 
+        /// <summary>
+        /// Reset the UI identical to when the application is launched.
+        /// </summary>
+        private void ResetPatientList()
+        {
+            for (int index = 1; index < newSelection+1; index++)
+            {
+                Label label = (Label)this.FindName("patient_status" + index.ToString());
+
+                if (label != null)
+                {
+                    String content = label.Content.ToString();
+
+                    if (!content.Contains("Waiting for connection"))
+                    {
+                        label.Content = "Waiting for connection";
+                        ToggleCheckMark(index.ToString(), false);
+                        AddPatientInfo(index.ToString(), "", 0);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Label is null");
+                    Console.WriteLine("Label:  patient_status" + index.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// This method change the UI to reflect number of connected patients.
+        /// </summary>
+        private void DisplayPatientList()
+        {
             int labelIndex = 1;
-            for(int index=0; index < connected_patients.Count; index++)
+            for (int index = 0; index < connected_patients.Count; index++)
             {
                 Label label = (Label)this.FindName("patient_status" + labelIndex.ToString());
 
@@ -91,8 +127,8 @@ namespace CardiacRehab
                     if (content.Contains("Waiting for connection"))
                     {
                         label.Content = "Username: " + connected_patients.ElementAt(index).name + " Connected!";
-                        
-                        ToggleCheckMark(labelIndex.ToString());
+
+                        ToggleCheckMark(labelIndex.ToString(), true);
                         AddPatientInfo(labelIndex.ToString(), connected_patients.ElementAt(index).address, connected_patients.ElementAt(index).id);
                     }
                 }
@@ -108,13 +144,26 @@ namespace CardiacRehab
             connected_patients.Clear();
         }
 
-        private void ToggleCheckMark(String index)
+        /// <summary>
+        /// This method is used to toggle the visibility of the
+        /// checkmark image to indicate connected/disconnected patients.
+        /// </summary>
+        /// <param name="index">index number associated with the checkmark image</param>
+        /// <param name="show">true if want image to be visible, otherwise false</param>
+        private void ToggleCheckMark(String index, bool show)
         {
             Image checkMark = (Image)this.FindName("checkmark" + index);
 
             if (checkMark != null)
             {
-                checkMark.Visibility = System.Windows.Visibility.Visible;
+                if(show)
+                {
+                    checkMark.Visibility = System.Windows.Visibility.Visible;
+                }
+                else
+                {
+                    checkMark.Visibility = System.Windows.Visibility.Hidden;
+                }
             }
             else
             {
@@ -122,6 +171,13 @@ namespace CardiacRehab
             }
         }
 
+        /// <summary>
+        /// Alter the content of hidden labels to store the patients'
+        /// IP address and their database ID.
+        /// </summary>
+        /// <param name="index"> index associated with the hidden labels </param>
+        /// <param name="ip"> IP address of the patient </param>
+        /// <param name="id"> Database ID of the patient </param>
         private void AddPatientInfo(String index, String ip, int id)
         {
             Label ipAddress = (Label)this.FindName("patient_ip" + index);
@@ -195,7 +251,7 @@ namespace CardiacRehab
                 }
                 else
                 {
-                    MessageBox.Show("Something went wrong!");
+                    MessageBox.Show("There are more people connected than maximum number of patients.");
                 }
             }
             else
@@ -207,8 +263,11 @@ namespace CardiacRehab
             oldSelection = newSelection;
         }
 
+        // This method changes the number of patients displayed as waiting on the
+        // UI when the select menu is altered.
         private void TogglePatientList(int old, int selected, String connected)
         {
+            // this condition might not be needed..
             if(connected == "none")
             {
                 if(old > selected)
@@ -259,7 +318,62 @@ namespace CardiacRehab
         // and insert session record and update to doctor/doctorID url with ContactInfo.session
         private void start_session_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("start button pressed");
+            // check if all the patients are connected
+            if(connected_patients.Count == 0)
+            {
+                String messageBoxText = "Please wait till at least one patient is connected.";
+                String caption = "No patients";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Warning;
+
+                MessageBox.Show(messageBoxText, caption, button, icon);
+            }
+            else if(connected_patients.Count > 0)
+            {
+                bool allConnected = true;
+                if(connected_patients.Count < newSelection+1)
+                {
+                    allConnected = false;
+                }
+
+                if (!allConnected)
+                {
+                    // give dialog box to choose either to continue or to cancel
+                    String messageBoxText = "Not all the patients have connected yet.\nAre you sure you want to start the session ?";
+                    String caption = "Incomplete list of Patients";
+                    MessageBoxButton button = MessageBoxButton.YesNo;
+                    MessageBoxImage icon = MessageBoxImage.Warning;
+
+                    MessageBoxResult userInput = MessageBox.Show(messageBoxText, caption, button, icon);
+
+                    if (userInput == MessageBoxResult.Yes)
+                    {
+                        getPatientTimer.Stop();
+                        StartSession();
+                    }
+                }
+                else
+                {
+                    getPatientTimer.Stop();
+                    StartSession();
+                }
+            }
+        }
+
+        // insert records into patient_session and launch doctorWindow
+        private void StartSession()
+        {
+            DatabaseClass db = new DatabaseClass();
+           for(int index = 0; index < connected_patients.Count; index++)
+           {
+               ContactInfo patientInfo = connected_patients.ElementAt(index);
+               Console.WriteLine("Patient information " + index.ToString());
+               Console.WriteLine(patientInfo.id);
+               Console.WriteLine(patientInfo.address);
+               Console.WriteLine(patientInfo.name);
+               Console.WriteLine("End of Patient data");
+
+           }
         }
     }
 }
