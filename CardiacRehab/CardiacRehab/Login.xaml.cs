@@ -96,26 +96,27 @@ namespace CardiacRehab
                     List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
                     docID = patientResult[0][0].Trim();
 
-                    InitTimer();
+                    //InitTimer();
 
-                    ContactInfo patientinfo = new ContactInfo();
-                    patientinfo.id = userid;
-                    patientinfo.name = username;
-                    patientinfo.session = 0;
-                    patientinfo.address = wirelessIP;
-                    patientinfo.assigned_index = 0;
+                    //ContactInfo patientinfo = new ContactInfo();
+                    //patientinfo.id = userid;
+                    //patientinfo.name = username;
+                    //patientinfo.session = 0;
+                    //patientinfo.address = wirelessIP;
+                    //patientinfo.assigned_index = 0;
 
-                    // post current patient's info
-                    postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", patientinfo);
+                    //// post current patient's info
+                    //postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", patientinfo);
 
-                    warning_label.Content = "Waiting for the Clinician...";
-                    warning_label.Visibility = System.Windows.Visibility.Visible;
+                    //warning_label.Content = "Waiting for the Clinician...";
+                    //warning_label.Visibility = System.Windows.Visibility.Visible;
 
                     // below code is to use this application offline
-                    //PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, "127.0.0.1", wirelessIP);
-                    //patientWindow.Show();
-                    //patientWindow.Closed += new EventHandler(MainWindowClosed);
-                    //this.Hide();
+                    Console.WriteLine("offline");
+                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, "127.0.0.1", wirelessIP);
+                    patientWindow.Show();
+                    patientWindow.Closed += new EventHandler(MainWindowClosed);
+                    this.Hide();
                 }
                 else if(result[1][0] == "Doctor")
                 {

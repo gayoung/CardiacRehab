@@ -87,7 +87,6 @@ namespace CardiacRehab
             sessionID = session;
             doctorIp = docIP;
             wirelessIP = wireless;
-
             InitializeComponent();
 
             _writer = new TextBoxStreamWriter(txtMessage);
@@ -99,7 +98,7 @@ namespace CardiacRehab
             InitializeVR();
 
             rotary_encoder = new PhidgetEncoder();
-           
+
             //CreateSocketConnection();
 
             // later will have different port for different devices 
