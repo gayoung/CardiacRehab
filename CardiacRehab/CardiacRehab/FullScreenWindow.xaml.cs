@@ -26,9 +26,9 @@ namespace CardiacRehab
         private int userid;
         public int patientLabel;
 
-        public ECGPointCollection ecgPointCollection;
-        DispatcherTimer updateCollectionTimer = null;
-        private double xaxisValue = 0;
+        //public ECGPointCollection ecgPointCollection;
+        //DispatcherTimer updateCollectionTimer = null;
+        //private double xaxisValue = 0;
 
         private DoctorWindow currentSplitScreen;
 
@@ -40,46 +40,46 @@ namespace CardiacRehab
 
             InitializeComponent();
 
-            bpSysValue.Content = hidden.systolic;
-            bpDiaValue.Content = hidden.diastolic;
+            //bpSysValue.Content = hidden.systolic;
+            //bpDiaValue.Content = hidden.diastolic;
 
-            InitializeECG();
+            //InitializeECG();
 
-            this.pateintId.Content = "Patient " + patientindex.ToString();
+            //this.pateintId.Content = "Patient " + patientindex.ToString();
         }
 
-        public void InitializeECG()
-        {
-            ecgPointCollection = new ECGPointCollection();
-            ecgPointCollection = currentSplitScreen.ecgPointCollection;
+        //public void InitializeECG()
+        //{
+        //    ecgPointCollection = new ECGPointCollection();
+        //    ecgPointCollection = currentSplitScreen.ecgPointCollection;
 
-            updateCollectionTimer = new DispatcherTimer();
-            updateCollectionTimer.Interval = TimeSpan.FromMilliseconds(currentSplitScreen.ecgms);
-            updateCollectionTimer.Tick += new EventHandler(updateCollectionTimer_Tick);
-            updateCollectionTimer.Start();
+        //    updateCollectionTimer = new DispatcherTimer();
+        //    updateCollectionTimer.Interval = TimeSpan.FromMilliseconds(currentSplitScreen.ecgms);
+        //    updateCollectionTimer.Tick += new EventHandler(updateCollectionTimer_Tick);
+        //    updateCollectionTimer.Start();
 
-            var ds = new EnumerableDataSource<ECGPoint>(ecgPointCollection);
-            ds.SetXMapping(x => x.ECGtime);
-            ds.SetYMapping(y => y.ECG);
-            fullplotter.AddLineGraph(ds, Colors.SlateGray, 2, "ECG");
+        //    var ds = new EnumerableDataSource<ECGPoint>(ecgPointCollection);
+        //    ds.SetXMapping(x => x.ECGtime);
+        //    ds.SetYMapping(y => y.ECG);
+        //    fullplotter.AddLineGraph(ds, Colors.SlateGray, 2, "ECG");
 
-            //plotter.HorizontalAxis.Remove();
-            //MaxECG = 1;
-            //MinECG = -1;
-        }
+        //    //plotter.HorizontalAxis.Remove();
+        //    //MaxECG = 1;
+        //    //MinECG = -1;
+        //}
 
-        void updateCollectionTimer_Tick(object sender, EventArgs e)
-        {
-            if (currentSplitScreen != null)
-            {
-                if (currentSplitScreen.ECGPointList.Count > 0)
-                {
-                    ECGPoint point = currentSplitScreen.ECGPointList.First();
-                    ecgPointCollection.Add(point);
-                    currentSplitScreen.ECGPointList.Remove(point);
-                }
-            }
-        }
+        //void updateCollectionTimer_Tick(object sender, EventArgs e)
+        //{
+        //    if (currentSplitScreen != null)
+        //    {
+        //        if (currentSplitScreen.ECGPointList.Count > 0)
+        //        {
+        //            ECGPoint point = currentSplitScreen.ECGPointList.First();
+        //            ecgPointCollection.Add(point);
+        //            currentSplitScreen.ECGPointList.Remove(point);
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// This method is called when the collapse button is triggered.
@@ -91,8 +91,8 @@ namespace CardiacRehab
         private void CollapseButton_Click(object sender, RoutedEventArgs e)
         {
             // when this method is changed to Close then it closes the entire app...
-            currentSplitScreen.ecgPointCollection = ecgPointCollection;
-            ecgPointCollection = null;
+            //currentSplitScreen.ecgPointCollection = ecgPointCollection;
+            //ecgPointCollection = null;
             currentSplitScreen.Show();
             currentSplitScreen = null;
             GC.Collect();

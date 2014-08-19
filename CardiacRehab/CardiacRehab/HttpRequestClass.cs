@@ -22,15 +22,8 @@ namespace CardiacRehab
     class HttpRequestClass
     {
         // add session
-        public void PostContactInfo(String url, String ip, String username, int sessionID, int userid, int assigned)
+        public void PostContactInfo(String url, ContactInfo contact)
         {
-            ContactInfo contact = new ContactInfo();
-            contact.address = ip;
-            contact.name = username;
-            contact.session = sessionID;
-            contact.id = userid;
-            contact.assigned_index = assigned;
-
             String jsonData = JsonConvert.SerializeObject(contact);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);

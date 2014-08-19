@@ -2,11 +2,12 @@
 This code is needed for the other computers to connect to this local db server. 
 For now, this query needs to list all IP that will attempt to connect to this db server.
 */
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.0.103' IDENTIFIED BY '';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.0.101' IDENTIFIED BY '';
 FLUSH PRIVILEGES;
 
 DROP TABLE IF EXISTS hr_data;
 DROP TABLE IF EXISTS ox_data;
+DROP TABLE IF EXISTS ui_data;
 DROP TABLE IF EXISTS bp_data;
 DROP TABLE IF EXISTS note_data;
 DROP TABLE IF EXISTS ecg_data;
@@ -82,6 +83,15 @@ PRIMARY KEY(id),
 FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
 );
 
+/* user intensity data */
+CREATE TABLE IF NOT EXISTS ui_data(
+id int(10) NOT NULL AUTO_INCREMENT,
+ui_value int(10) NOT NULL,
+session_id int(10) NOT NULL,
+PRIMARY KEY(id),
+FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS bp_data(
 id int(10) NOT NULL AUTO_INCREMENT,
 systolic varchar(100) NOT NULL, /* varchar b/c it will be encrypted */
@@ -94,6 +104,7 @@ FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
 CREATE TABLE IF NOT EXISTS note_data(
 id int(10) NOT NULL AUTO_INCREMENT,
 note varchar(1000) NOT NULL, /* varchar b/c it will be encrypted */
+date_stamped datetime NOT NULL,
 session_id int(10) NOT NULL,
 PRIMARY KEY(id),
 FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE

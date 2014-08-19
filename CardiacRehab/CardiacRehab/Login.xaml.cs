@@ -32,7 +32,7 @@ namespace CardiacRehab
         String wirelessIP;
         String docID;
         String currentRole = "";
-        String hostUrl = "http://192.168.0.102:5050/doctors/";
+        String hostUrl = "http://192.168.0.100:5050/doctors/";
 
         private DispatcherTimer checkForDocTimer;
 
@@ -98,8 +98,15 @@ namespace CardiacRehab
 
                     InitTimer();
 
+                    ContactInfo patientinfo = new ContactInfo();
+                    patientinfo.id = userid;
+                    patientinfo.name = username;
+                    patientinfo.session = 0;
+                    patientinfo.address = wirelessIP;
+                    patientinfo.assigned_index = 0;
+
                     // post current patient's info
-                    postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", wirelessIP, username, 0, userid, 0);
+                    postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", patientinfo);
 
                     warning_label.Content = "Waiting for the Clinician...";
                     warning_label.Visibility = System.Windows.Visibility.Visible;
@@ -113,18 +120,15 @@ namespace CardiacRehab
                 else if(result[1][0] == "Doctor")
                 {
                     currentRole = "Doctor";
-                    postrequest.PostContactInfo(hostUrl + userid + "/", wirelessIP, "", 0, userid, 0);
-                    // change below code to open PatientList window
-                    // (PatientList window will query the db for all patients under this doc & check for
-                    // their data at doctors/<dbid>/patients/<dbid> )
 
-                    //recordValues = userid.ToString() + ",  NOW(), 0";
-                    //sessionID = db.InsertRecord("patient_session", "patient_id, date_start, chosen_level", recordValues);
+                    ContactInfo doctorinfo = new ContactInfo();
+                    doctorinfo.id = userid;
+                    doctorinfo.name = "";
+                    doctorinfo.session = 0;
+                    doctorinfo.address = wirelessIP;
+                    doctorinfo.assigned_index = 0;
 
-                    //DoctorWindow doctorWindow = new DoctorWindow(userid, sessionID);
-                    //doctorWindow.Show();
-                    //doctorWindow.Closed += new EventHandler(MainWindowClosed);
-                    //this.Hide();
+                    postrequest.PostContactInfo(hostUrl + userid + "/", doctorinfo);
 
                     PatientList listwindow = new PatientList(userid);
                     listwindow.Show();
@@ -146,8 +150,6 @@ namespace CardiacRehab
         private void MainWindowClosed(object sender, EventArgs e)
         {
             Console.WriteLine("Closing loginwindow");
-            //DatabaseClass db = new DatabaseClass();
-            //db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + sessionID.ToString());
             this.Close();
         }
 

@@ -36,8 +36,8 @@ namespace CardiacRehab
         private int doctorId;
         private DispatcherTimer getPatientTimer;
         private ContactInfo patientData;
-        private List<ContactInfo> connected_patients;
-        private String hosturl = "http://192.168.0.102:5050/doctors/";
+        private List<ContactInfo> connected_patients = null;
+        private String hosturl = "http://192.168.0.100:5050/doctors/";
 
 
         public PatientList(int dbId)
@@ -59,6 +59,11 @@ namespace CardiacRehab
 
         private void GetConnecterdPatients(object sender, EventArgs e)
         {
+            if (connected_patients != null)
+            {
+                connected_patients.Clear();
+            }
+
             DatabaseClass db = new DatabaseClass();
             List<String>[] listOfPatients = db.SelectRecords("patient_id", "patient", "staff_id='" + doctorId.ToString() + "'");
 
@@ -67,14 +72,12 @@ namespace CardiacRehab
             // this function needs to be improved... it fails if connected patient disconnects while waiting for
             // the other patients to connect... it needs a better way to detect connected patients.
             String getData = "";
-            for(int i=0; i < listOfPatients[0].Count; i++)
+            for (int i = 0; i < listOfPatients[0].Count; i++)
             {
                 getData = getRequest.GetPostData(hosturl + doctorId.ToString() + "/patients/" + listOfPatients[0][i] + "/");
-                if(!getData.Contains("no data"))
+                if (!getData.Contains("no data"))
                 {
                     patientData = JsonConvert.DeserializeObject<ContactInfo>(getData);
-                    Console.WriteLine(patientData.address);
-
                     connected_patients.Add(patientData);
                 }
             }
@@ -87,7 +90,7 @@ namespace CardiacRehab
         /// </summary>
         private void ResetPatientList()
         {
-            for (int index = 1; index < newSelection+1; index++)
+            for (int index = 1; index < newSelection + 1; index++)
             {
                 Label label = (Label)this.FindName("patient_status" + index.ToString());
 
@@ -97,7 +100,7 @@ namespace CardiacRehab
 
                     if (!content.Contains("Waiting for connection"))
                     {
-                        label.Content = "Waiting for connection";
+                        label.Content = "patient" + index.ToString() + ": Waiting for connection";
                         ToggleCheckMark(index.ToString(), false);
                         AddPatientInfo(index.ToString(), "", 0);
                     }
@@ -141,7 +144,6 @@ namespace CardiacRehab
                 labelIndex++;
             }
 
-            connected_patients.Clear();
         }
 
         /// <summary>
@@ -156,7 +158,7 @@ namespace CardiacRehab
 
             if (checkMark != null)
             {
-                if(show)
+                if (show)
                 {
                     checkMark.Visibility = System.Windows.Visibility.Visible;
                 }
@@ -181,7 +183,7 @@ namespace CardiacRehab
         private void AddPatientInfo(String index, String ip, int id)
         {
             Label ipAddress = (Label)this.FindName("patient_ip" + index);
-            if(ipAddress != null)
+            if (ipAddress != null)
             {
                 ipAddress.Content = ip;
             }
@@ -211,11 +213,11 @@ namespace CardiacRehab
             newSelection = max_patients.SelectedIndex;
 
             // find number of connected patients
-           
-            for(int i = 1; i < 7; i++)
+
+            for (int i = 1; i < 7; i++)
             {
                 Label label = (Label)this.FindName("patient_status" + i.ToString());
-                if(label != null)
+                if (label != null)
                 {
                     String content = label.Content.ToString();
 
@@ -231,21 +233,21 @@ namespace CardiacRehab
                 }
             }
 
-            if(connected.Count == 0)
+            if (connected.Count == 0)
             {
                 connected = null;
             }
 
-            if(connected != null)
+            if (connected != null)
             {
-                if (connected.Count == newSelection+1)
+                if (connected.Count == newSelection + 1)
                 {
                     MessageBox.Show("GOT EVERYONE!");
                     TogglePatientList(oldSelection, newSelection, "none");
                 }
-                else if (connected.Count < newSelection+1)
+                else if (connected.Count < newSelection + 1)
                 {
-                    int difference = newSelection+1 - connected.Count;
+                    int difference = newSelection + 1 - connected.Count;
                     MessageBox.Show("Missing " + difference.ToString() + " patients!");
                     TogglePatientList(oldSelection, newSelection, "none");
                 }
@@ -268,9 +270,9 @@ namespace CardiacRehab
         private void TogglePatientList(int old, int selected, String connected)
         {
             // this condition might not be needed..
-            if(connected == "none")
+            if (connected == "none")
             {
-                if(old > selected)
+                if (old > selected)
                 {
                     int endNumber = selected + 1;
                     int diff = old - selected;
@@ -304,7 +306,7 @@ namespace CardiacRehab
 
                     }
                 }
-                
+
             }
             else
             {
@@ -319,7 +321,7 @@ namespace CardiacRehab
         private void start_session_Click(object sender, RoutedEventArgs e)
         {
             // check if all the patients are connected
-            if(connected_patients.Count == 0)
+            if (connected_patients.Count == 0)
             {
                 String messageBoxText = "Please wait till at least one patient is connected.";
                 String caption = "No patients";
@@ -328,10 +330,10 @@ namespace CardiacRehab
 
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
-            else if(connected_patients.Count > 0)
+            else if (connected_patients.Count > 0)
             {
                 bool allConnected = true;
-                if(connected_patients.Count < newSelection+1)
+                if (connected_patients.Count < newSelection + 1)
                 {
                     allConnected = false;
                 }
@@ -360,20 +362,47 @@ namespace CardiacRehab
             }
         }
 
-        // insert records into patient_session and launch doctorWindow
+        // insert records into patient_session and POST the session ID
         private void StartSession()
         {
             DatabaseClass db = new DatabaseClass();
-           for(int index = 0; index < connected_patients.Count; index++)
-           {
-               ContactInfo patientInfo = connected_patients.ElementAt(index);
-               Console.WriteLine("Patient information " + index.ToString());
-               Console.WriteLine(patientInfo.id);
-               Console.WriteLine(patientInfo.address);
-               Console.WriteLine(patientInfo.name);
-               Console.WriteLine("End of Patient data");
+            HttpRequestClass postReq = new HttpRequestClass();
+            List<ContactInfo> finalList = new List<ContactInfo>();
 
-           }
+            for (int index = 0; index < connected_patients.Count; index++)
+            {
+                ContactInfo patientInfo = connected_patients.ElementAt(index);
+                patientInfo.assigned_index = index;
+
+                String recordValue = patientInfo.id.ToString() + ",  " + doctorId.ToString() + ", NOW(), 0";
+                int sessionID = db.InsertRecord("patient_session", "patient_id, staff_id, date_start, chosen_level", recordValue);
+                
+                patientInfo.session = sessionID;
+
+                postReq.PostContactInfo(hosturl + doctorId.ToString() + "/patients/" + patientInfo.id.ToString() + "/", patientInfo);
+                finalList.Add(patientInfo);
+            }
+
+            DoctorWindow docWindow = new DoctorWindow(finalList);
+            docWindow.Show();
+            docWindow.Closed += new EventHandler(DoctorWindowClosed);
+            this.Hide();
+
+        }
+
+        private void DoctorWindowClosed(object sender, EventArgs e)
+        {
+            DatabaseClass db = new DatabaseClass();
+
+            for(int index = 0; index < connected_patients.Count; index++)
+            {
+                ContactInfo patientInfo = connected_patients.ElementAt(index);
+                db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + patientInfo.session.ToString());
+            }
+
+            connected_patients.Clear();
+
+            this.Close();
         }
     }
 }
