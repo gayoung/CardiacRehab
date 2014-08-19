@@ -18,10 +18,13 @@ namespace CardiacRehab
         String encoderPosition;
         String data;
         Byte[] dataToUnity;
+        int encoderIndex;
 
-        public PhidgetEncoder()
+        public PhidgetEncoder(int index)
         {
+            encoderIndex = index;
             encoder = new Phidgets.Encoder();
+            //encoder.encodersWithEnable[index].Enabled = true;
 
             encoder.Attach += new AttachEventHandler(encoder_Attach);
             encoder.Detach += new DetachEventHandler(encoder_Detach);
@@ -51,11 +54,9 @@ namespace CardiacRehab
         {
             Console.WriteLine("encoder attached");
             Phidgets.Encoder attached = (Phidgets.Encoder)sender;
-            Console.WriteLine(attached.Attached.ToString());
-            Console.WriteLine(attached.Name);
-            Console.WriteLine(attached.Version.ToString());
-            Console.WriteLine(attached.encoders.Count.ToString());
-            Console.WriteLine(attached.inputs.Count.ToString());
+
+            // indicating which encoder is enabled
+            encoder.encodersWithEnable[encoderIndex].Enabled = true;
         }
 
         //Detach event code...We'll clear our display fields and disable our editable fields while device is not attached

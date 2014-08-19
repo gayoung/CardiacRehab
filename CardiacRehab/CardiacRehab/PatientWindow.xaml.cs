@@ -97,7 +97,7 @@ namespace CardiacRehab
 
             InitializeVR();
 
-            rotary_encoder = new PhidgetEncoder();
+            rotary_encoder = new PhidgetEncoder(3);
 
             //CreateSocketConnection();
 
