@@ -199,11 +199,7 @@ namespace CardiacRehab
                 case 4446:
                     tablename = "ecg_data";
                     fields = "ecg_data, session_id";
-
-                    Console.WriteLine("ECG data length: " + data.Length.ToString());
-
                     String processed = data.Substring(0, data.Length - 3);
-
                     values = "'"+processed.Trim() + "', " + sessionId.ToString();
                     break;
                 // Bike

@@ -32,6 +32,7 @@ namespace CardiacRehab
         String docID;
         String currentRole = "";
         String hostUrl = "http://192.168.0.101:5050/doctors/";
+        int modeChosen;
 
         private DispatcherTimer checkForDocTimer;
 
@@ -76,7 +77,7 @@ namespace CardiacRehab
         {
             String username = usernameinput.Text.Trim();
             String password = passwordinput.Password.Trim();
-            int modeChosen = modeinput.SelectedIndex;
+            modeChosen = modeinput.SelectedIndex;
 
             // database connection and check login info
             DatabaseClass db = new DatabaseClass();
@@ -90,9 +91,10 @@ namespace CardiacRehab
 
                 if(result[1][0] == "Patient")
                 {
+                    currentRole = "Patient";
+
                     if (modeChosen == 0)
                     {
-                        currentRole = "Patient";
                         // get doctor DB ID
                         List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
                         docID = patientResult[0][0].Trim();
@@ -115,8 +117,10 @@ namespace CardiacRehab
                     else
                     {
                         Console.WriteLine("offline");
+                        List<String>[] offlinedoc = db.SelectRecords("staff_id", "clinical_staff", "fname='Offline' AND lname='Offline'");
+                        docID = offlinedoc[0][0].Trim();
 
-                        String recordValue = userid.ToString() + ",  3, NOW(), 0";
+                        String recordValue = userid.ToString() + ",  " + docID + ", NOW(), 0";
                         sessionID = db.InsertRecord("patient_session", "patient_id, staff_id, date_start, chosen_level", recordValue);
 
                         PatientWindow patientWindow = new PatientWindow(1, userid, sessionID, "127.0.0.1", wirelessIP);
@@ -256,6 +260,13 @@ namespace CardiacRehab
             if(currentRole == "Patient")
             {
                 deleteRequest.DeleteData(hostUrl + docID + "/patients/" + userid.ToString() + "/");
+
+                // offline
+                if(modeChosen == 1)
+                {
+                    DatabaseClass db = new DatabaseClass();
+                    db.UpdateRecord("patient_session", "date_end=NOW()", "id=" + sessionID.ToString());
+                }
             }
             else if(currentRole == "Doctor")
             {
