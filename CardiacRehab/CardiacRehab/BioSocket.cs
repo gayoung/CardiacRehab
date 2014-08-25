@@ -20,14 +20,14 @@ namespace CardiacRehab
     class BioSocketPacket
     {
         public System.Net.Sockets.Socket packetSocket;
-        public byte[] dataBuffer = new byte[1024];
+        public byte[] dataBuffer = new byte[200];
     }
 
     class BioSocket
     {
         private AsyncCallback socketBioWorkerCallback;
         public Socket socketBioListener;
-        public Socket bioSocketWorker;
+        public Socket bioSocketWorker = null;
         String IpAddress;
         int PortNumber;
         PatientWindow window;
@@ -51,6 +51,7 @@ namespace CardiacRehab
             {
                 //create listening socket
                 socketBioListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socketBioListener.NoDelay = true;
                 IPAddress addy = IPAddress.Parse(IpAddress);
                 IPEndPoint iplocal = new IPEndPoint(addy, PortNumber);
                 //bind to local IP Address
@@ -73,6 +74,7 @@ namespace CardiacRehab
             try
             {
                 bioSocketWorker = socketBioListener.EndAccept(asyn);
+                bioSocketWorker.NoDelay = true;
                 WaitForBioData(bioSocketWorker);
             }
             catch (ObjectDisposedException)
@@ -96,6 +98,7 @@ namespace CardiacRehab
                 }
 
                 BioSocketPacket sockpkt = new BioSocketPacket();
+                soc.NoDelay = true;
                 sockpkt.packetSocket = soc;
                 //start listening for data
                 soc.BeginReceive(sockpkt.dataBuffer, 0, sockpkt.dataBuffer.Length, SocketFlags.None, socketBioWorkerCallback, sockpkt);
@@ -115,6 +118,8 @@ namespace CardiacRehab
                 //end receive
                 int end = 0;
                 end = socketID.packetSocket.EndReceive(asyn);
+
+                //Console.WriteLine(end.ToString());
 
                 // If the phone stops sending, then the EndReceive function returns 0
                 // (i.e. zero bytes received)
@@ -194,7 +199,12 @@ namespace CardiacRehab
                 case 4446:
                     tablename = "ecg_data";
                     fields = "ecg_data, session_id";
-                    values = data.Trim();
+
+                    Console.WriteLine("ECG data length: " + data.Length.ToString());
+
+                    String processed = data.Substring(0, data.Length - 3);
+
+                    values = "'"+processed.Trim() + "', " + sessionId.ToString();
                     break;
                 // Bike
                 case 4447:
@@ -227,14 +237,17 @@ namespace CardiacRehab
 
         public void CloseSocket()
         {
-            if(bioSocketWorker.Connected)
+            if(bioSocketWorker != null)
             {
-                bioSocketWorker.Close();
-            }
+                if (bioSocketWorker.Connected)
+                {
+                    bioSocketWorker.Close();
+                }
 
-            if(socketBioListener.Connected)
-            {
-                socketBioListener.Close();
+                if (socketBioListener.Connected)
+                {
+                    socketBioListener.Close();
+                }
             }
         }
 

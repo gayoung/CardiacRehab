@@ -115,6 +115,10 @@ namespace CardiacRehab
                     else
                     {
                         Console.WriteLine("offline");
+
+                        String recordValue = userid.ToString() + ",  3, NOW(), 0";
+                        sessionID = db.InsertRecord("patient_session", "patient_id, staff_id, date_start, chosen_level", recordValue);
+
                         PatientWindow patientWindow = new PatientWindow(1, userid, sessionID, "127.0.0.1", wirelessIP);
                         patientWindow.Show();
                         patientWindow.Closed += new EventHandler(MainWindowClosed);
@@ -154,7 +158,7 @@ namespace CardiacRehab
         // need this function to close the hidden login form
         private void MainWindowClosed(object sender, EventArgs e)
         {
-            Console.WriteLine("Closing loginwindow");
+            //Console.WriteLine("Closing loginwindow");
             this.Close();
         }
 

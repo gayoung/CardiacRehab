@@ -67,7 +67,6 @@ namespace CardiacRehab
         TextWriter _writer;
 
         UnitySocket unityBikeSocket = null;
-        UnitySocket turnSocket = null;
 
         BioSocket otherSocket;
         BioSocket bpSocket;
@@ -89,8 +88,8 @@ namespace CardiacRehab
             wirelessIP = wireless;
             InitializeComponent();
 
-            //_writer = new TextBoxStreamWriter(txtMessage);
-            //Console.SetOut(_writer);
+            _writer = new TextBoxStreamWriter(txtMessage);
+            Console.SetOut(_writer);
 
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
@@ -116,7 +115,7 @@ namespace CardiacRehab
             
 
             // disable this function if InitializeBioSockets function is active
-            InitTimer();
+            //InitTimer();
         }
 
         private void PatientWindow_Loaded(object sender, RoutedEventArgs e)
@@ -302,7 +301,7 @@ namespace CardiacRehab
                         {
                             oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = data[1] + " %"));
                             // enable below to display hr from oximeter
-                            hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = data[2].Replace("\0", "").Trim() + " bpm"));
+                            //hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = data[2].Replace("\0", "").Trim() + " bpm"));
                         }
                     }
                 }

@@ -59,14 +59,17 @@ namespace CardiacRehab
 
         public void CloseSocket()
         {
-            if(unitySocketWorker.Connected)
+            if (unitySocketWorker != null)
             {
-                unitySocketWorker.Close();
-            }
+                if (unitySocketWorker.Connected)
+                {
+                    unitySocketWorker.Close();
+                }
 
-            if(unitySocketListener.Connected)
-            {
-                unitySocketListener.Close();
+                if (unitySocketListener.Connected)
+                {
+                    unitySocketListener.Close();
+                }
             }
         }
     }

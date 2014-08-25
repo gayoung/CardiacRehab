@@ -143,11 +143,17 @@ FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
 
 INSERT INTO authentication (username, password, role) VALUES('admin', 'admin', 'Admin');
 INSERT INTO authentication (username, password, role) VALUES('patient1', 'test', 'Patient');
+INSERT INTO authentication (username, password, role) VALUES('doctor0', 'test', 'Doctor-offline');
 INSERT INTO authentication (username, password, role) VALUES('doctor1', 'test', 'Doctor');
 
 INSERT INTO clinical_staff VALUES(
 (SELECT id FROM authentication WHERE username = 'doctor1' AND password = 'test'),
 'Matt', 'Smith', NOW(), 'doc@example.com'
+);
+
+INSERT INTO clinical_staff VALUES(
+(SELECT id FROM authentication WHERE username = 'doctor0' AND password = 'test'),
+'Offline', 'Offline', NOW(), 'offline@example.com'
 );
 
 INSERT INTO patient VALUES(
