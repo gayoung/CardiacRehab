@@ -25,6 +25,7 @@ namespace CardiacRehab
     {
         private int userid;
         public int patientLabel;
+        public int sessionID;
 
         //public ECGPointCollection ecgPointCollection;
         //DispatcherTimer updateCollectionTimer = null;
@@ -32,8 +33,9 @@ namespace CardiacRehab
 
         private DoctorWindow currentSplitScreen;
 
-        public FullScreenWindow(int currentUser, int patientindex, DoctorWindow hidden)
+        public FullScreenWindow(int currentUser, int patientindex, DoctorWindow hidden, int session)
         {
+            sessionID = session;
             userid = currentUser;
             patientLabel = patientindex;
             currentSplitScreen = hidden;
@@ -108,7 +110,7 @@ namespace CardiacRehab
         /// <param name="e"></param>
         private void NoteButton_Click(object sender, RoutedEventArgs e)
         {
-            PopupWindow popup = new PopupWindow();
+            PopupWindow popup = new PopupWindow(sessionID);
             popup.PatientLabel.Content = "Patient " + patientLabel.ToString();
             popup.NoteTime.Content = DateTime.Now.ToString("HH:mm:ss");
             popup.ShowDialog();

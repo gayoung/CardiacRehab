@@ -19,13 +19,25 @@ namespace CardiacRehab
     /// </summary>
     public partial class PopupWindow : Window
     {
-        public PopupWindow()
+        int sessionID;
+
+        public PopupWindow(int session)
         {
+            sessionID = session;
+
             InitializeComponent();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            String note = patientNote.Text;
+
+            // save the note into DB
+
+            DatabaseClass db = new DatabaseClass();
+            String recordValue = "'" + note + "', " + "NOW(), " + sessionID.ToString();
+            db.InsertRecord("note_data", "note, date_stamped, session_id", recordValue);
+
             this.Close();
         }
         private void CancelButton_Click(object sender, RoutedEventArgs e)

@@ -90,7 +90,8 @@ namespace CardiacRehab
         /// <param name="index"> the index associated with the memo icon (which is associated with patients 1-6)</param>
         private void CreateMemoPopup(int index)
         {
-            PopupWindow popup = new PopupWindow();
+            ContactInfo patientinfo = PatientList.ElementAt(index);
+            PopupWindow popup = new PopupWindow(patientinfo.session);
             popup.PatientLabel.Content = "Patient " + index.ToString();
             popup.NoteTime.Content = DateTime.Now.ToString("HH:mm:ss");
             popup.ShowDialog();

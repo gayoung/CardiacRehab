@@ -32,7 +32,7 @@ namespace CardiacRehab
             db_password = "";
 
             String connectionString = "SERVER=" + db_server + ";DATABASE="
-                + db_name + ";UID=" + db_username + ";PASSWORD=" + db_password + ";";
+                + db_name + ";UID=" + db_username + ";PASSWORD=" + db_password + ";charset=utf8;";
 
             db_connection = new MySqlConnection(connectionString);
         }
