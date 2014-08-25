@@ -5,13 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Phidgets;
 using Phidgets.Events;
+using System.Threading;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace CardiacRehab
 {
     class PhidgetEncoder
     {
         Phidgets.Encoder encoder;
-        int serialNumber = 0;
         UnitySocket turnSocket;
         String positionChange;
         String time;
@@ -30,13 +32,23 @@ namespace CardiacRehab
             encoder.Detach += new DetachEventHandler(encoder_Detach);
             encoder.Error += new ErrorEventHandler(encoder_Error);
             encoder.PositionChange += new EncoderPositionChangeEventHandler(encoder_PositionChange);
-            encoder.open();
-            encoder.waitForAttachment();
 
             turnSocket = new UnitySocket(5556);
             turnSocket.ConnectToUnity();
+            encoder.open();
+            try
+            {
+                // wait 5 seconds for the encoder
+                encoder.waitForAttachment(5000);
+            }
+            catch (PhidgetException ex)
+            {
+                // reminder for the user
+                MessageBox.Show("Please connect the Phidget encoder USB to this computer.");
+            }
         }
 
+        // clean up code called by PatientWindow when the window is closing
         public void CloseEncoder()
         {
             //Unhook the event handlers
@@ -46,6 +58,8 @@ namespace CardiacRehab
             encoder.PositionChange -= new EncoderPositionChangeEventHandler(encoder_PositionChange);
 
             encoder.close();
+
+            turnSocket.CloseSocket();
         }
         
         // this method is mostly for debugging purposes (to see the encoder attached)
@@ -86,12 +100,10 @@ namespace CardiacRehab
             try
             {
                 time = e.Time.ToString();
-                Console.WriteLine("Time: " + time);
             }
             catch
             {
                 time = "Unknown";
-                Console.WriteLine("Unknown");
             }
 
             encoderPosition = encoder.encoders[e.Index].ToString();

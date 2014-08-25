@@ -56,5 +56,18 @@ namespace CardiacRehab
                 Console.WriteLine(e.Message, "error");
             }
         }
+
+        public void CloseSocket()
+        {
+            if(unitySocketWorker.Connected)
+            {
+                unitySocketWorker.Close();
+            }
+
+            if(unitySocketListener.Connected)
+            {
+                unitySocketListener.Close();
+            }
+        }
     }
 }

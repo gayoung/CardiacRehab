@@ -26,7 +26,6 @@ namespace CardiacRehab
     public partial class Login : Window
     {
         int sessionID = 0;
-        int chosenIndex;
         int userid;
         String recordValues;
         String wirelessIP;
@@ -77,7 +76,7 @@ namespace CardiacRehab
         {
             String username = usernameinput.Text.Trim();
             String password = passwordinput.Password.Trim();
-            chosenIndex = indexinput.SelectedIndex;
+            int modeChosen = modeinput.SelectedIndex;
 
             // database connection and check login info
             DatabaseClass db = new DatabaseClass();
@@ -91,32 +90,37 @@ namespace CardiacRehab
 
                 if(result[1][0] == "Patient")
                 {
-                    currentRole = "Patient";
-                    // get doctor DB ID
-                    List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
-                    docID = patientResult[0][0].Trim();
+                    if (modeChosen == 0)
+                    {
+                        currentRole = "Patient";
+                        // get doctor DB ID
+                        List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
+                        docID = patientResult[0][0].Trim();
 
-                    //InitTimer();
+                        InitTimer();
 
-                    //ContactInfo patientinfo = new ContactInfo();
-                    //patientinfo.id = userid;
-                    //patientinfo.name = username;
-                    //patientinfo.session = 0;
-                    //patientinfo.address = wirelessIP;
-                    //patientinfo.assigned_index = 0;
+                        ContactInfo patientinfo = new ContactInfo();
+                        patientinfo.id = userid;
+                        patientinfo.name = username;
+                        patientinfo.session = 0;
+                        patientinfo.address = wirelessIP;
+                        patientinfo.assigned_index = 0;
 
-                    //// post current patient's info
-                    //postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", patientinfo);
+                        // post current patient's info
+                        postrequest.PostContactInfo(hostUrl + docID + "/patients/" + userid.ToString() + "/", patientinfo);
 
-                    //warning_label.Content = "Waiting for the Clinician...";
-                    //warning_label.Visibility = System.Windows.Visibility.Visible;
-
-                    // below code is to use this application offline
-                    Console.WriteLine("offline");
-                    PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, "127.0.0.1", wirelessIP);
-                    patientWindow.Show();
-                    patientWindow.Closed += new EventHandler(MainWindowClosed);
-                    this.Hide();
+                        warning_label.Content = "Waiting for the Clinician...";
+                        warning_label.Visibility = System.Windows.Visibility.Visible;
+                    }
+                    else
+                    {
+                        Console.WriteLine("offline");
+                        PatientWindow patientWindow = new PatientWindow(1, userid, sessionID, "127.0.0.1", wirelessIP);
+                        patientWindow.Show();
+                        patientWindow.Closed += new EventHandler(MainWindowClosed);
+                        this.Hide();
+                    }
+                    
                 }
                 else if(result[1][0] == "Doctor")
                 {
@@ -185,7 +189,7 @@ namespace CardiacRehab
             return docData;
         }
 
-        private int CheckSession()
+        private ContactInfo CheckSession()
         {
             HttpRequestClass getRequest = new HttpRequestClass();
             String patientinfo = getRequest.GetPostData(hostUrl + docID + "/patients/" + userid.ToString() + "/").Trim();
@@ -195,11 +199,11 @@ namespace CardiacRehab
             {
                 patientData = JsonConvert.DeserializeObject<ContactInfo>(patientinfo);
 
-                return patientData.session;
+                return patientData;
             }
             else
             {
-                return 0;
+                return null;
             }
         }
 
@@ -220,20 +224,21 @@ namespace CardiacRehab
         /// <param name="e"></param>
         private void mimicPhoneTimer_Tick(object sender, EventArgs e)
         {
-            int session = CheckSession();
+            ContactInfo patientInfo = CheckSession();
 
-            if(session != 0)
+            if (patientInfo != null)
             {
                 ContactInfo currentdocInfo = GetDoctorInfo();
                 warning_label.Content = "Connected!";
                 warning_label.Visibility = System.Windows.Visibility.Visible;
 
-                sessionID = currentdocInfo.session;
+                sessionID = patientInfo.session;
+                int patientindex = patientInfo.assigned_index;
                 String doctorIP = currentdocInfo.address;
 
                 checkForDocTimer.Stop();
 
-                PatientWindow patientWindow = new PatientWindow(chosenIndex, userid, sessionID, doctorIP, wirelessIP);
+                PatientWindow patientWindow = new PatientWindow(patientindex, userid, sessionID, doctorIP, wirelessIP);
                 patientWindow.Show();
                 patientWindow.Closed += new EventHandler(MainWindowClosed);
                 this.Hide();

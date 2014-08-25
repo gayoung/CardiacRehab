@@ -83,14 +83,14 @@ namespace CardiacRehab
         public PatientWindow(int chosen, int currentuser, int session, String docIP, String wireless)
         {
             user = currentuser;
-            patientIndex = chosen + 1;
+            patientIndex = chosen;
             sessionID = session;
             doctorIp = docIP;
             wirelessIP = wireless;
             InitializeComponent();
 
-            _writer = new TextBoxStreamWriter(txtMessage);
-            Console.SetOut(_writer);
+            //_writer = new TextBoxStreamWriter(txtMessage);
+            //Console.SetOut(_writer);
 
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
@@ -470,6 +470,25 @@ namespace CardiacRehab
 
 
         #endregion
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // clean up 
+            rotary_encoder.CloseEncoder();
+            unityBikeSocket.CloseSocket();
+            otherSocket.CloseSocket();
+            bpSocket.CloseSocket();
+            ecgSocket.CloseSocket();
+            bikeSocket.CloseSocket();
+
+            if (mybufferwp != null)
+            {
+                mybufferwp.ClearBuffer();
+
+                wo.Stop();
+                wo.Dispose();
+            }
+        }
     }
 
 }

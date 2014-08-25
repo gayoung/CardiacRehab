@@ -26,6 +26,8 @@ namespace CardiacRehab
         {
             String jsonData = JsonConvert.SerializeObject(contact);
 
+            Console.WriteLine("requested URL: " + url);
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             ASCIIEncoding encoding = new ASCIIEncoding();
             request.Method = "POST";

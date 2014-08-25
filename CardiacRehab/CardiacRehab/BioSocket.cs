@@ -177,6 +177,12 @@ namespace CardiacRehab
                         fields = "oxy_sat, session_id";
                         values = datainfo[1].Trim() + ", " + sessionId.ToString();
                     }
+                    else if(datainfo[0] == "UI")
+                    {
+                        tablename = "ui_data";
+                        fields = "ui_value, session_id";
+                        values = datainfo[1].Trim() + "," + sessionId.ToString();
+                    }
                     break;
                 // BP
                 case 4445:
@@ -219,7 +225,18 @@ namespace CardiacRehab
             }
         }
 
-        // send HTTP POST
-        
+        public void CloseSocket()
+        {
+            if(bioSocketWorker.Connected)
+            {
+                bioSocketWorker.Close();
+            }
+
+            if(socketBioListener.Connected)
+            {
+                socketBioListener.Close();
+            }
+        }
+
     }
 }
