@@ -131,15 +131,14 @@ namespace CardiacRehab
 
         private void InitializeVR()
         {
-            //String debugpath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            //String projectpath = debugpath.Replace("\\bin\\Debug\\CardioRehab-WPF.exe", "");
-
-            //Console.WriteLine(projectpath);
+            String debugpath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            String projectpath = debugpath.Replace("\\CardiacRehab\\CardiacRehab\\bin\\Debug\\CardiacRehab.exe", "");
+            projectpath = projectpath + "\\BikeVR\\BikeVR.html";
 
             // make this path relative later
             try
             {
-                UnityWindow.Navigate("C:\\Users\\Gayoung\\Documents\\KdaysDemo\\web\\web.html");
+                UnityWindow.Navigate(projectpath);
             }
             catch (Exception e)
             {
@@ -254,10 +253,6 @@ namespace CardiacRehab
             }
 
         }
-
-        #endregion
-
-        #region Setting up the socket connection for bio information
 
         public void ProcessBioSocketData(String tmp, int socketPortNumber)
         {
