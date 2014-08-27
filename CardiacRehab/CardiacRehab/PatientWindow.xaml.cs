@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,7 +23,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-
 using ColorImageFormat = Microsoft.Kinect.ColorImageFormat;
 using ColorImageFrame = Microsoft.Kinect.ColorImageFrame;
 
@@ -67,6 +67,7 @@ namespace CardiacRehab
         TextWriter _writer;
 
         UnitySocket unityBikeSocket = null;
+        UnitySocket turnSocket = null;
 
         BioSocket otherSocket;
         BioSocket bpSocket;
@@ -94,9 +95,13 @@ namespace CardiacRehab
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
 
+            turnSocket = new UnitySocket(5556);
+            turnSocket.ConnectToUnity();
+
             InitializeVR();
 
-            rotary_encoder = new PhidgetEncoder(3);
+            rotary_encoder = new PhidgetEncoder(3, this);
+            rotary_encoder.Initialize();
 
             //CreateSocketConnection();
 
@@ -115,7 +120,7 @@ namespace CardiacRehab
             
 
             // disable this function if InitializeBioSockets function is active
-            //InitTimer();
+            InitTimer();
         }
 
         private void PatientWindow_Loaded(object sender, RoutedEventArgs e)
@@ -252,6 +257,19 @@ namespace CardiacRehab
                 Console.WriteLine(ex.Message);
             }
 
+        }
+
+        public void ProcessEncoderData(String encoderData)
+        {
+            if(turnSocket.unitySocketWorker != null)
+            {
+                if (turnSocket.unitySocketWorker.Connected)
+                {
+                    // indicates if the rotation was CCW (+) or CW (-)
+                    Byte[] dataToUnity = System.Text.Encoding.ASCII.GetBytes(encoderData);
+                    turnSocket.unitySocketWorker.Send(dataToUnity);
+                }
+            }
         }
 
         public void ProcessBioSocketData(String tmp, int socketPortNumber)
@@ -470,6 +488,7 @@ namespace CardiacRehab
             // clean up 
             rotary_encoder.CloseEncoder();
             unityBikeSocket.CloseSocket();
+            turnSocket.CloseSocket();
             otherSocket.CloseSocket();
             bpSocket.CloseSocket();
             ecgSocket.CloseSocket();

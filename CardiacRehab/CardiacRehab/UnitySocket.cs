@@ -24,6 +24,7 @@ namespace CardiacRehab
             try
             {
                 unitySocketListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                unitySocketListener.NoDelay = true;
                 IPAddress addy = System.Net.IPAddress.Parse("127.0.0.1");
                 IPEndPoint iplocal = new IPEndPoint(addy, portNumber);
                 //bind to local IP Address
@@ -46,6 +47,7 @@ namespace CardiacRehab
             try
             {
                 unitySocketWorker = unitySocketListener.EndAccept(asyn);
+                unitySocketWorker.NoDelay = true;
             }
             catch (ObjectDisposedException)
             {

@@ -14,17 +14,23 @@ namespace CardiacRehab
     class PhidgetEncoder
     {
         Phidgets.Encoder encoder;
-        UnitySocket turnSocket;
+        //UnitySocket turnSocket;
         String positionChange;
         String time;
         String encoderPosition;
         String data;
-        Byte[] dataToUnity;
+        //Byte[] dataToUnity;
         int encoderIndex;
+        PatientWindow window;
 
-        public PhidgetEncoder(int index)
+        public PhidgetEncoder(int index, PatientWindow currentwindow)
         {
             encoderIndex = index;
+            window = currentwindow;
+        }
+
+        public void Initialize()
+        {
             encoder = new Phidgets.Encoder();
             //encoder.encodersWithEnable[index].Enabled = true;
 
@@ -33,8 +39,8 @@ namespace CardiacRehab
             encoder.Error += new ErrorEventHandler(encoder_Error);
             encoder.PositionChange += new EncoderPositionChangeEventHandler(encoder_PositionChange);
 
-            turnSocket = new UnitySocket(5556);
-            turnSocket.ConnectToUnity();
+            //turnSocket = new UnitySocket(5556);
+            //turnSocket.ConnectToUnity();
             encoder.open();
             try
             {
@@ -58,8 +64,6 @@ namespace CardiacRehab
             encoder.PositionChange -= new EncoderPositionChangeEventHandler(encoder_PositionChange);
 
             encoder.close();
-
-            turnSocket.CloseSocket();
         }
         
         // this method is mostly for debugging purposes (to see the encoder attached)
@@ -95,7 +99,7 @@ namespace CardiacRehab
         void encoder_PositionChange(object sender, EncoderPositionChangeEventArgs e)
         {
             positionChange = e.PositionChange.ToString();
-            Console.WriteLine("Position Change: " + positionChange);
+            //Console.WriteLine("Position Change: " + positionChange);
 
             try
             {
@@ -107,18 +111,21 @@ namespace CardiacRehab
             }
 
             encoderPosition = encoder.encoders[e.Index].ToString();
-            Console.WriteLine("Encoder Position: " + encoderPosition);
+            //Console.WriteLine("Encoder Position: " + encoderPosition);
+            data = positionChange + " " + time + " " + encoderPosition + "   \n";
 
-            if(turnSocket.unitySocketWorker != null)
-            {
-                if(turnSocket.unitySocketWorker.Connected)
-                {
-                    // indicates if the rotation was CCW (+) or CW (-)
-                    data = positionChange + " " + time + " " + encoderPosition + "   \n";
-                    dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                    turnSocket.unitySocketWorker.Send(dataToUnity);
-                }
-            }
+            window.ProcessEncoderData(data);
+
+            //if(window.turnSocket.unitySocketWorker != null)
+            //{
+            //    if(turnSocket.unitySocketWorker.Connected)
+            //    {
+            //        // indicates if the rotation was CCW (+) or CW (-)
+            //        data = positionChange + " " + time + " " + encoderPosition + "   \n";
+            //        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+            //        turnSocket.unitySocketWorker.Send(dataToUnity);
+            //    }
+            //}
 
         }
 
