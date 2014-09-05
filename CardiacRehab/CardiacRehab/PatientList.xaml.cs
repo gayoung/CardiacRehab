@@ -31,13 +31,14 @@ namespace CardiacRehab
         ///     3) update the list accordingly
         /// </summary>
 
-        private int oldSelection = 5;
-        private int newSelection = 0;
+        //private int oldSelection = 5;
+        //private int newSelection = 0;
         private int doctorId;
+        private static int MAX_PATIENTS = 6;
         private DispatcherTimer getPatientTimer;
         private ContactInfo patientData;
         private List<ContactInfo> connected_patients = null;
-        private String hosturl = "http://192.168.0.101:5050/doctors/";
+        private String hosturl = "http://192.168.0.105:5050/doctors/";
 
 
         public PatientList(int dbId)
@@ -81,36 +82,7 @@ namespace CardiacRehab
                     connected_patients.Add(patientData);
                 }
             }
-            ResetPatientList();
             DisplayPatientList();
-        }
-
-        /// <summary>
-        /// Reset the UI identical to when the application is launched.
-        /// </summary>
-        private void ResetPatientList()
-        {
-            for (int index = 1; index < newSelection + 1; index++)
-            {
-                Label label = (Label)this.FindName("patient_status" + index.ToString());
-
-                if (label != null)
-                {
-                    String content = label.Content.ToString();
-
-                    if (!content.Contains("Waiting for connection"))
-                    {
-                        label.Content = "patient" + index.ToString() + ": Waiting for connection";
-                        ToggleCheckMark(index.ToString(), false);
-                        AddPatientInfo(index.ToString(), "", 0);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Label is null");
-                    Console.WriteLine("Label:  patient_status" + index.ToString());
-                }
-            }
         }
 
         /// <summary>
@@ -203,119 +175,6 @@ namespace CardiacRehab
             }
         }
 
-        private void max_patients_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            List<String> connected = new List<String>();
-            // dynamically change the list of patients
-            // (need to check for the label content before to see if the patient has already connected when the
-            // doctor changed the number of patients)
-
-            newSelection = max_patients.SelectedIndex;
-
-            // find number of connected patients
-
-            for (int i = 1; i < 7; i++)
-            {
-                Label label = (Label)this.FindName("patient_status" + i.ToString());
-                if (label != null)
-                {
-                    String content = label.Content.ToString();
-
-                    if (!content.Contains("Waiting for connection"))
-                    {
-                        connected.Add("patient_status" + i.ToString());
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Label is null");
-                    Console.WriteLine("Label:  patient_status" + i.ToString());
-                }
-            }
-
-            if (connected.Count == 0)
-            {
-                connected = null;
-            }
-
-            if (connected != null)
-            {
-                if (connected.Count == newSelection + 1)
-                {
-                    MessageBox.Show("GOT EVERYONE!");
-                    TogglePatientList(oldSelection, newSelection, "none");
-                }
-                else if (connected.Count < newSelection + 1)
-                {
-                    int difference = newSelection + 1 - connected.Count;
-                    MessageBox.Show("Missing " + difference.ToString() + " patients!");
-                    TogglePatientList(oldSelection, newSelection, "none");
-                }
-                else
-                {
-                    MessageBox.Show("There are more people connected than maximum number of patients.");
-                }
-            }
-            else
-            {
-                MessageBox.Show("No Patients are connected");
-                TogglePatientList(oldSelection, newSelection, "none");
-            }
-
-            oldSelection = newSelection;
-        }
-
-        // This method changes the number of patients displayed as waiting on the
-        // UI when the select menu is altered.
-        private void TogglePatientList(int old, int selected, String connected)
-        {
-            // this condition might not be needed..
-            if (connected == "none")
-            {
-                if (old > selected)
-                {
-                    int endNumber = selected + 1;
-                    int diff = old - selected;
-
-                    for (int i = 0; i < diff; i++)
-                    {
-                        endNumber++;
-
-                        Rectangle rec = (Rectangle)this.FindName("patient_rec" + endNumber.ToString().Trim());
-                        rec.Visibility = System.Windows.Visibility.Hidden;
-
-                        Label patientStatus = (Label)this.FindName("patient_status" + endNumber.ToString());
-                        patientStatus.Visibility = System.Windows.Visibility.Hidden;
-                    }
-                }
-                // increased maximum
-                else
-                {
-                    int endNumber = old + 1;
-                    int diff = selected - old;
-
-                    for (int i = 0; i < diff; i++)
-                    {
-                        endNumber++;
-
-                        Rectangle rec = (Rectangle)this.FindName("patient_rec" + endNumber.ToString().Trim());
-                        rec.Visibility = System.Windows.Visibility.Visible;
-
-                        Label patientStatus = (Label)this.FindName("patient_status" + endNumber.ToString());
-                        patientStatus.Visibility = System.Windows.Visibility.Visible;
-
-                    }
-                }
-
-            }
-            else
-            {
-                // there are some patients connected
-                // If have to hide the rectangle with connected patient, give user an option to continue and drop the
-                // existing connection with the patient or to cancel the selection
-            }
-        }
-
         // start socket connections and video/audio connections with patients
         // and insert session record and update to doctor/doctorID url with ContactInfo.session
         private void start_session_Click(object sender, RoutedEventArgs e)
@@ -333,7 +192,7 @@ namespace CardiacRehab
             else if (connected_patients.Count > 0)
             {
                 bool allConnected = true;
-                if (connected_patients.Count < newSelection + 1)
+                if (connected_patients.Count <= MAX_PATIENTS)
                 {
                     allConnected = false;
                 }

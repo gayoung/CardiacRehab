@@ -142,6 +142,9 @@ FOREIGN KEY(session_id) REFERENCES patient_session(id) ON DELETE CASCADE
 );
 
 INSERT INTO authentication (username, password, role) VALUES('admin', 'admin', 'Admin');
+
+INSERT INTO authentication (username, password, role) VALUES('*****', '*****', 'iHealth');
+
 INSERT INTO authentication (username, password, role) VALUES('patient1', 'test', 'Patient');
 INSERT INTO authentication (username, password, role) VALUES('doctor0', 'test', 'Doctor-offline');
 INSERT INTO authentication (username, password, role) VALUES('doctor1', 'test', 'Doctor');

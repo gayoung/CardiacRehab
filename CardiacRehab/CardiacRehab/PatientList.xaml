@@ -26,16 +26,7 @@
                 <GradientStop Color="#FF5EC96D"/>
             </RadialGradientBrush>
         </Grid.Background>
-        <Label Content="Waiting for" HorizontalAlignment="Left" Height="40" Margin="6,29,0,0" VerticalAlignment="Top" Width="113" Foreground="#FFF9F4F4" FontFamily="Century" FontSize="18" Grid.Column="1"/>
-        <ComboBox x:Name="max_patients" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Height="30" Margin="119,29,0,0" VerticalAlignment="Top" Width="60" Foreground="#FF0A5B15" IsReadOnly="True" SelectedIndex="5" FontFamily="Century" FontSize="18" Grid.Column="1" SelectionChanged="max_patients_SelectionChanged">
-            <ComboBoxItem Content="1" FontFamily="Century"/>
-            <ComboBoxItem Content="2" FontFamily="Century"/>
-            <ComboBoxItem Content="3" FontFamily="Century"/>
-            <ComboBoxItem Content="4" FontFamily="Century"/>
-            <ComboBoxItem Content="5" FontFamily="Century"/>
-            <ComboBoxItem Content="6" FontFamily="Century"/>
-        </ComboBox>
-        <Label Content="patients..." HorizontalAlignment="Left" Height="40" Margin="184,29,0,0" VerticalAlignment="Top" Width="113" Foreground="#FFF9F4F4" FontFamily="Century" FontSize="18" Grid.Column="1" Grid.ColumnSpan="2"/>
+        <Label Content="Waiting for patients..." HorizontalAlignment="Left" Height="40" Margin="50,21,0,0" VerticalAlignment="Top" Width="201" Foreground="#FFF9F4F4" FontFamily="Century" FontSize="18" Grid.Column="1"/>
         <Border BorderBrush="#FFF5F3F3" BorderThickness="5" HorizontalAlignment="Stretch" Margin="10" Height="Auto" VerticalAlignment="Stretch" Width="Auto" CornerRadius="10" Grid.Row="1" Grid.ColumnSpan="3" Grid.RowSpan="6"/>
         <Button x:Name="start_session" Content="Start" HorizontalAlignment="Left" Margin="89,27,0,31" Width="111" BorderBrush="#FFF7FBF8" Foreground="#FF1B6406" BorderThickness="0" FontFamily="Century" FontWeight="Bold" Opacity="0.8" Background="#FFF4F9F4" Grid.Row="7" Grid.Column="1" Click="start_session_Click"/>
         <Rectangle x:Name="patient_rec1" Grid.ColumnSpan="3" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="56" Margin="24,24,0,0" Grid.Row="1" Stroke="Black" VerticalAlignment="Top" Width="543"/>
