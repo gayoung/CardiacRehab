@@ -4,7 +4,7 @@
         xmlns:k="http://schemas.microsoft.com/kinect/2013"
         Title="Welcome to CardiacRehab Program!" Height="770" Width="1024" WindowStartupLocation="CenterScreen"
         Loaded="PatientWindow_Loaded" WindowState="Maximized" Closing="Window_Closing">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid x:Name="grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <k:KinectSensorChooserUI HorizontalAlignment="Center" VerticalAlignment="Top" x:Name="sensorChooserUi"/>
         <Grid>
             <Grid.RowDefinitions>

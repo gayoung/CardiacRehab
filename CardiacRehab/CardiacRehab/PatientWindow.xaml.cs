@@ -98,10 +98,10 @@ namespace CardiacRehab
             turnSocket = new UnitySocket(5556);
             turnSocket.ConnectToUnity();
 
-            InitializeVR();
+            //InitializeVR();
 
-            rotary_encoder = new PhidgetEncoder(3, this);
-            rotary_encoder.Initialize();
+            //rotary_encoder = new PhidgetEncoder(3, this);
+            //rotary_encoder.Initialize();
 
             //CreateSocketConnection();
 
@@ -128,7 +128,22 @@ namespace CardiacRehab
            
             //InitializeKinect();
             //InitializeAudio();
+            IHealthClass ihealth = new IHealthClass(patientIndex, this);
+            ihealth.GetCode();
+            //Thread.Sleep(5000);
+            //if (ihealth.Access_token == null)
+            //{
+            //    MessageBox.Show("Cannot Connect to iHealth.");
+            //}
+            //else
+            //{
+            //    // test code
+            //    DateTime startUnix = DateTime.Today.AddDays(-1);
+            //    String startTime = UnixTime.ToUnixTime(startUnix).ToString();
 
+            //    String endTime = UnixTime.ToUnixTime(DateTime.Now).ToString();
+            //    ihealth.GetBloodPressure(startTime, endTime);
+            //}
         }
 
 
