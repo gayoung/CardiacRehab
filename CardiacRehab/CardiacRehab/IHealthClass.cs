@@ -168,7 +168,6 @@ namespace CardiacRehab
                 // replace below with iHealth account information
 
                 htmldoc = br.Document as mshtml.HTMLDocument;
-
                 htmldoc.getElementById("txtUserName").innerText = ihealth_email;
                 htmldoc.getElementById("txtPsw").innerText = ihealth_password;
                 htmldoc.getElementById("Button1").click();
@@ -177,30 +176,31 @@ namespace CardiacRehab
             }
             else
             {
-                //*********** WHERE CURRENT BUG IS AT**************
                 Uri redirectedUri = new Uri(br.Source.ToString());
-
-                Console.WriteLine(redirectedUri.Query);
                 access_code = HttpUtility.ParseQueryString(redirectedUri.Query).Get("code");
 
                 if (access_code != null)
                 {
-                    Console.WriteLine("access code: "+access_code);
                     GetAccessToken();
                 }
                 else
                 {
-                    // NO MATTER WHAT, IT'S ALWAYS NULL!!
-                    Console.WriteLine("Null access Code");
+                    // Either there was an error retrieving the access_code or
+                    // this user has not given permission for the application to get the data
+                    // so link the patient to the application.
+                    htmldoc = br.Document as mshtml.HTMLDocument;
+                    mshtml.IHTMLElement linkButton = htmldoc.getElementById("btnLink");
+                    if(linkButton != null)
+                    {
+                        linkButton.click();
+                    }
                 }
-                // ******************************************************
             }
 
         }
 
         private void GetAccessToken()
         {
-            Console.WriteLine("Here");
             string url = url_authorization
            + "?client_id=" + client_id
            + "&client_secret=" + client_secret
@@ -221,7 +221,7 @@ namespace CardiacRehab
             }
         }
 
-        public void GetBloodPressure(String startTime, String endTime)
+        public String GetBloodPressure(String startTime, String endTime)
         {
             string url = string.Format(url_bp_data, access_token.UserID)
                     + "?access_token=" + access_token.AccessToken
@@ -244,11 +244,49 @@ namespace CardiacRehab
             if (receivedData.StartsWith("{\"Error\":"))
             {
                 Console.WriteLine(receivedData);
+                return "Error in retreiving BP";
             }
             else
             {
-                Console.WriteLine(receivedData);
+                return ProcessBPData(receivedData);
             }
+        }
+        
+        /// <summary>
+        /// Extract the systolic and diastolic data from the iHealth Cloud data.
+        /// </summary>
+        /// <param name="received">blood pressure data pulled from iHealth Cloud</param>
+        /// <returns>Processed string containing data in format systolic1,diastolic1/systolic,diastolic2...etc</returns>
+        private String ProcessBPData(String received)
+        {
+            String[] modBPData = received.Split(',');
+            String data = "";
+            bool gotdata = false;
+
+            // extract systolic and diastolic and return it as systolic, diastolic/systolic,diastolic...etc
+            for(int i=0; i < modBPData.Length; i++)
+            {
+                if(modBPData[i].Contains("HP"))
+                {
+                    String[] temp = modBPData[i].Trim().Split(':');
+                    data += temp[1] + ",";
+                }
+                else if(modBPData[i].Contains("LP"))
+                {
+                    String[] temp = modBPData[i].Trim().Split(':');
+                    data += temp[1];
+                    gotdata = true;
+                }
+                else
+                {
+                    gotdata = false;
+                }
+                if(gotdata)
+                {
+                    data += "/";
+                }
+            }
+            return data;
         }
         
         // later need a refresh method to keep the access token valid. (need to get expiry time on access token)

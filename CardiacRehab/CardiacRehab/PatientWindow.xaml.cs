@@ -42,6 +42,7 @@ namespace CardiacRehab
 
         private int patientIndex;
         private DispatcherTimer mimicPhoneTimer;
+        private DispatcherTimer mimicBPTimer;
 
         public Socket socketToClinician = null;
 
@@ -75,6 +76,8 @@ namespace CardiacRehab
         BioSocket bikeSocket;
 
         PhidgetEncoder rotary_encoder;
+        IHealthClass ihealth;
+        public String BpCloudData;
 
         /// <summary>
         /// Constructor for this class
@@ -88,9 +91,23 @@ namespace CardiacRehab
             doctorIp = docIP;
             wirelessIP = wireless;
             InitializeComponent();
+            StartApplication();
+        }
 
-            _writer = new TextBoxStreamWriter(txtMessage);
-            Console.SetOut(_writer);
+        private void PatientWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+
+            //InitializeKinect();
+            //InitializeAudio();
+        }
+
+        private void StartApplication()
+        {
+            //_writer = new TextBoxStreamWriter(txtMessage);
+            //Console.SetOut(_writer);
+
+            ihealth = new IHealthClass(patientIndex, this);
+            ihealth.GetCode();
 
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
@@ -98,57 +115,33 @@ namespace CardiacRehab
             turnSocket = new UnitySocket(5556);
             turnSocket.ConnectToUnity();
 
-            //InitializeVR();
+            InitializeVR();
 
-            //rotary_encoder = new PhidgetEncoder(3, this);
-            //rotary_encoder.Initialize();
+            rotary_encoder = new PhidgetEncoder(3, this);
+            rotary_encoder.Initialize();
 
             //CreateSocketConnection();
 
             // later will have different port for different devices 
-            otherSocket = new BioSocket(wirelessIP, 4444, patientIndex, currentuser, sessionID, this);
+            otherSocket = new BioSocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
             otherSocket.InitializeBioSockets();
 
-            bpSocket = new BioSocket(wirelessIP, 4445, patientIndex, currentuser, sessionID, this);
+            bpSocket = new BioSocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
             bpSocket.InitializeBioSockets();
 
-            ecgSocket = new BioSocket(wirelessIP, 4446, patientIndex, currentuser, sessionID, this);
+            ecgSocket = new BioSocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
             ecgSocket.InitializeBioSockets();
 
-            bikeSocket = new BioSocket(wirelessIP, 4447, patientIndex, currentuser, sessionID, this);
+            bikeSocket = new BioSocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
             bikeSocket.InitializeBioSockets();
-            
+
 
             // disable this function if InitializeBioSockets function is active
+            InitBPTimer();
             InitTimer();
         }
 
-        private void PatientWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-           
-            //InitializeKinect();
-            //InitializeAudio();
-            IHealthClass ihealth = new IHealthClass(patientIndex, this);
-            ihealth.GetCode();
-            //Thread.Sleep(5000);
-            //if (ihealth.Access_token == null)
-            //{
-            //    MessageBox.Show("Cannot Connect to iHealth.");
-            //}
-            //else
-            //{
-            //    // test code
-            //    DateTime startUnix = DateTime.Today.AddDays(-1);
-            //    String startTime = UnixTime.ToUnixTime(startUnix).ToString();
-
-            //    String endTime = UnixTime.ToUnixTime(DateTime.Now).ToString();
-            //    ihealth.GetBloodPressure(startTime, endTime);
-            //}
-        }
-
-
-        #region Helper functions
-
+        #region VR code
         private void InitializeVR()
         {
             String debugpath = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -167,6 +160,80 @@ namespace CardiacRehab
             }
 
         }
+
+        public void ProcessEncoderData(String encoderData)
+        {
+            if (turnSocket.unitySocketWorker != null)
+            {
+                if (turnSocket.unitySocketWorker.Connected)
+                {
+                    // indicates if the rotation was CCW (+) or CW (-)
+                    Byte[] dataToUnity = System.Text.Encoding.ASCII.GetBytes(encoderData);
+                    turnSocket.unitySocketWorker.Send(dataToUnity);
+                }
+            }
+        }
+        #endregion
+
+        #region blood Pressure Test code
+
+        // ****************************** TEST CODE **************************
+
+        public void InitBPTimer()
+        {
+            mimicBPTimer = new System.Windows.Threading.DispatcherTimer();
+            mimicBPTimer.Tick += new EventHandler(mimicBP_timer);
+            mimicBPTimer.Interval = new TimeSpan(0, 0, 10); ; // 3 min
+            mimicBPTimer.Start();
+        }
+
+        /// <summary>
+        /// Function called by the timer class.
+        /// 
+        /// This method is called every 2 seconds.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void mimicBP_timer(object sender, EventArgs e)
+        {
+            BPPhoneTest();
+        }
+
+        private void BPPhoneTest()
+        {
+            if (ihealth.Access_token != null)
+            {
+                DateTime startUnix = DateTime.Now.AddMinutes(-3);
+                String startTime = UnixTime.ToUnixTime(startUnix).ToString();
+
+                String endTime = UnixTime.ToUnixTime(DateTime.Now).ToString();
+                String bloodPressureData = ihealth.GetBloodPressure(startTime, endTime);
+
+                if (bloodPressureData != "")
+                {
+                    String[] received = bloodPressureData.Split('/');
+
+
+                    for (int i = 0; i < received.Length; i++)
+                    {
+                        if (received[i] != "")
+                        {
+                            String[] bpdata = received[i].Split(',');
+                            bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = bpdata[0] + " / " + bpdata[1]));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Something happened with connection with iHealth Cloud");
+            }
+
+        }
+        #endregion
+
+        #region mimicking phone code
+        // *******************************************************************
 
         /// <summary>
         /// This method calls mimicPhoneTimer_Tick method which calls the PhoneTestMethod
@@ -209,8 +276,8 @@ namespace CardiacRehab
             Random r = new Random();
             int heartRate = r.Next(60, 200);
             int oxygen = r.Next(93, 99);
-            int systolic = r.Next(100, 180);
-            int diastolic = r.Next(50, 120);
+            //int systolic = r.Next(100, 180);
+            //int diastolic = r.Next(50, 120);
 
             // testing for bike data (values may not be in correct range)
             int powerVal = r.Next(20, 40);
@@ -221,7 +288,7 @@ namespace CardiacRehab
             // modify patient UI labels
             hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = heartRate.ToString() + " bpm"));
             oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = oxygen.ToString() + " %"));
-            bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
+            //bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
 
             String patientLabel = "patient" + patientIndex;
 
@@ -274,18 +341,9 @@ namespace CardiacRehab
 
         }
 
-        public void ProcessEncoderData(String encoderData)
-        {
-            if(turnSocket.unitySocketWorker != null)
-            {
-                if (turnSocket.unitySocketWorker.Connected)
-                {
-                    // indicates if the rotation was CCW (+) or CW (-)
-                    Byte[] dataToUnity = System.Text.Encoding.ASCII.GetBytes(encoderData);
-                    turnSocket.unitySocketWorker.Send(dataToUnity);
-                }
-            }
-        }
+        #endregion
+
+        #region Process data sent from the phone
 
         public void ProcessBioSocketData(String tmp, int socketPortNumber)
         {
@@ -332,6 +390,38 @@ namespace CardiacRehab
                             //hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = data[2].Replace("\0", "").Trim() + " bpm"));
                         }
                     }
+                }
+                if (data[0] == "BP")
+                {
+                    // get data from the cloud
+                    if (ihealth.Access_token != null)
+                    {
+                        DateTime startUnix = DateTime.Now.AddMinutes(-3);
+                        String startTime = UnixTime.ToUnixTime(startUnix).ToString();
+
+                        String endTime = UnixTime.ToUnixTime(DateTime.Now).ToString();
+                        BpCloudData = ihealth.GetBloodPressure(startTime, endTime);
+
+                        if (BpCloudData != "")
+                        {
+                            String[] received = BpCloudData.Split('/');
+
+
+                            for (int i = 0; i < received.Length; i++)
+                            {
+                                if (received[i] != "")
+                                {
+                                    String[] bpdata = received[i].Split(',');
+                                    bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = bpdata[0] + " / " + bpdata[1]));
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Something happened with connection with iHealth Cloud");
+                    }
+                    // set as a property here...
                 }
             }
             else if (socketPortNumber == 4445)

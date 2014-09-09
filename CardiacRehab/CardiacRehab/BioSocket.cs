@@ -188,6 +188,26 @@ namespace CardiacRehab
                         fields = "ui_value, session_id";
                         values = datainfo[1].Trim() + "," + sessionId.ToString();
                     }
+                    else if(datainfo[0] == "BP")
+                    {
+                        // insert cloud data to db.
+                        if(window.BpCloudData != "")
+                        {
+                            String bpData = window.BpCloudData;
+                            String[] received = bpData.Split('/');
+
+                            for (int i = 0; i < received.Length; i++)
+                            {
+                                if (received[i] != "")
+                                {
+                                    String[] bpdata = received[i].Split(',');
+                                    tablename = "bp_data";
+                                    fields = "systolic, diastolic, session_id";
+                                    values = bpdata[0].Trim() + ", " + bpdata[1].Trim() + ", " + sessionId.ToString();
+                                }
+                            }
+                        }
+                    }
                     break;
                 // BP
                 case 4445:
