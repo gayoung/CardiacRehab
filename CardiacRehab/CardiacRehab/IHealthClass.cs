@@ -24,6 +24,7 @@ namespace CardiacRehab
     {
         public String APIName;
         public String AccessToken;
+        // for each access_token, seems to be about 48 hours
         public int Expires;
         public String RefreshToken;
         public String UserID;
