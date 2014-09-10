@@ -5,7 +5,8 @@
 	to full size of the browser.-->
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Unity Web Player | "BOB project" </title>
+        <title>Unity Web Player | "BOB project"</title>
+		<script type='text/javascript' src='jquery.min.js'></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         <script type="text/javascript">
         <!--
@@ -59,7 +60,22 @@
                         break;
                     }
                 });
-                u.initPlugin(jQuery("#unityPlayer")[0], "C:/Users/Gayoung/Documents/GitHub/CardiacRehab/BikeVR/BikeVR.unity3d");
+				/*
+				var unitypath = "BikeVR.unity3d";
+				var processed = unitypath.split("/");
+				
+				var newpath = "";
+				for(var i=3; i < processed.length-1; i++)
+				{
+					newpath += processed[i] + "/";
+				}
+				
+				var modfilename = processed[processed.length-1].trim().split(".");
+				newpath += modfilename[0] + ".unity3d";
+				
+				console.log(newpath); */
+				
+                u.initPlugin(jQuery("#unityPlayer")[0], "BikeVR.unity3d");
             });
         -->
         </script>

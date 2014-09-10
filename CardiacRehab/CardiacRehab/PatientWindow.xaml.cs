@@ -43,6 +43,7 @@ namespace CardiacRehab
         private int patientIndex;
         private DispatcherTimer mimicPhoneTimer;
         private DispatcherTimer mimicBPTimer;
+        private DispatcherTimer BPTimer;
 
         public Socket socketToClinician = null;
 
@@ -137,7 +138,7 @@ namespace CardiacRehab
 
 
             // disable this function if InitializeBioSockets function is active
-            InitBPTimer();
+            InitMockBPTimer();
             InitTimer();
         }
 
@@ -179,7 +180,7 @@ namespace CardiacRehab
 
         // ****************************** TEST CODE **************************
 
-        public void InitBPTimer()
+        public void InitMockBPTimer()
         {
             mimicBPTimer = new System.Windows.Threading.DispatcherTimer();
             mimicBPTimer.Tick += new EventHandler(mimicBP_timer);
@@ -394,40 +395,71 @@ namespace CardiacRehab
                 if (data[0] == "BP")
                 {
                     // get data from the cloud
-                    if (ihealth.Access_token != null)
-                    {
-                        DateTime startUnix = DateTime.Now.AddMinutes(-3);
-                        String startTime = UnixTime.ToUnixTime(startUnix).ToString();
-
-                        String endTime = UnixTime.ToUnixTime(DateTime.Now).ToString();
-                        BpCloudData = ihealth.GetBloodPressure(startTime, endTime);
-
-                        if (BpCloudData != "")
-                        {
-                            String[] received = BpCloudData.Split('/');
-
-
-                            for (int i = 0; i < received.Length; i++)
-                            {
-                                if (received[i] != "")
-                                {
-                                    String[] bpdata = received[i].Split(',');
-                                    bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = bpdata[0] + " / " + bpdata[1]));
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Something happened with connection with iHealth Cloud");
-                    }
-                    // set as a property here...
+                    // Once prompted by the phone, pull every 30 seconds 
+                    // for any data taken a minute from current time until
+                    // new data is detected. (currently just checks if
+                    // there has been a measurement in last one minute)
+                    InitBPTimer();
                 }
             }
             else if (socketPortNumber == 4445)
             {
                 bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = data[1] + "/" + data[2]));
             }
+        }
+
+        private void InitBPTimer()
+        {
+            BPTimer = new System.Windows.Threading.DispatcherTimer();
+            BPTimer.Tick += new EventHandler(BPTimerMethod);
+            BPTimer.Interval = new TimeSpan(0, 0, 30); ; // 3 min
+            BPTimer.Start();
+        }
+
+        /// <summary>
+        /// Function called by the timer class.
+        /// 
+        /// This method is called every 2 seconds.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BPTimerMethod(object sender, EventArgs e)
+        {
+            PullBpFromCloud();
+        }
+
+        private void PullBpFromCloud()
+        {
+            if (ihealth.Access_token != null)
+            {
+                DateTime startUnix = DateTime.Now.AddMinutes(-1);
+                String startTime = UnixTime.ToUnixTime(startUnix).ToString();
+
+                String endTime = UnixTime.ToUnixTime(DateTime.Now).ToString();
+                BpCloudData = ihealth.GetBloodPressure(startTime, endTime);
+
+                if (BpCloudData != "")
+                {
+                    String[] received = BpCloudData.Split('/');
+
+
+                    for (int i = 0; i < received.Length; i++)
+                    {
+                        if (received[i] != "")
+                        {
+                            // got the value so update UI and stop timer
+                            String[] bpdata = received[i].Split(',');
+                            bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = bpdata[0] + " / " + bpdata[1]));
+                            BPTimer.Stop();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Something happened with connection with iHealth Cloud");
+            }
+
         }
         #endregion
 
