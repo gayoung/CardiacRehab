@@ -41,11 +41,15 @@ namespace CardiacRehab
         private String wirelessIP;
 
         private int patientIndex;
+
+        // Timers for testing purposes
         private DispatcherTimer mimicPhoneTimer;
         private DispatcherTimer mimicBPTimer;
+
+        // Timer to pull blood pressure data from the iHealth Cloud
         private DispatcherTimer BPTimer;
 
-        public Socket socketToClinician = null;
+        Socket socketToClinician = null;
 
         //kinect sensor 
         private KinectSensorChooser sensorChooser;
@@ -104,6 +108,7 @@ namespace CardiacRehab
 
         private void StartApplication()
         {
+            // textbox in the UI for testing purposes
             //_writer = new TextBoxStreamWriter(txtMessage);
             //Console.SetOut(_writer);
 
@@ -121,7 +126,7 @@ namespace CardiacRehab
             rotary_encoder = new PhidgetEncoder(3, this);
             rotary_encoder.Initialize();
 
-            //CreateSocketConnection();
+            ConnectToDoctor();
 
             // later will have different port for different devices 
             otherSocket = new BioSocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
@@ -137,8 +142,8 @@ namespace CardiacRehab
             bikeSocket.InitializeBioSockets();
 
 
-            // disable this function if InitializeBioSockets function is active
-            InitMockBPTimer();
+            // Disable this function if testing with InitTimer()
+            //InitMockBPTimer();
             InitTimer();
         }
 
@@ -277,8 +282,8 @@ namespace CardiacRehab
             Random r = new Random();
             int heartRate = r.Next(60, 200);
             int oxygen = r.Next(93, 99);
-            //int systolic = r.Next(100, 180);
-            //int diastolic = r.Next(50, 120);
+            int systolic = r.Next(100, 180);
+            int diastolic = r.Next(50, 120);
 
             // testing for bike data (values may not be in correct range)
             int powerVal = r.Next(20, 40);
@@ -289,28 +294,28 @@ namespace CardiacRehab
             // modify patient UI labels
             hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = heartRate.ToString() + " bpm"));
             oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = oxygen.ToString() + " %"));
-            //bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
+            bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
 
             String patientLabel = "patient" + patientIndex;
 
             try
             {
                 //// mock data sent to the clinician
-                //data = patientLabel + "-" + user.ToString() + "|" + "HR " + heartRate.ToString() + "\n";
-                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                //socketToClinician.Send(dataToClinician);
+                data = patientLabel + "-" + user.ToString() + "|" + "HR " + heartRate.ToString() + "\n";
+                dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                socketToClinician.Send(dataToClinician);
 
-                //data = patientLabel + "-" + user.ToString() + "|" + "OX " + oxygen.ToString() + "\n";
-                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                //socketToClinician.Send(dataToClinician);
+                data = patientLabel + "-" + user.ToString() + "|" + "OX " + oxygen.ToString() + "\n";
+                dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                socketToClinician.Send(dataToClinician);
 
-                //data = patientLabel + "-" + user.ToString() + "|" + "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
-                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                //socketToClinician.Send(dataToClinician);
+                data = patientLabel + "-" + user.ToString() + "|" + "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
+                dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                socketToClinician.Send(dataToClinician);
 
-                //data = patientLabel + "-" + user.ToString() + "|" + "EC -592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
-                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                //socketToClinician.Send(dataToClinician);
+                data = patientLabel + "-" + user.ToString() + "|" + "EC -592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
+                dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                socketToClinician.Send(dataToClinician);
 
                 if (unityBikeSocket.unitySocketWorker != null)
                 {
@@ -465,7 +470,7 @@ namespace CardiacRehab
 
         #region socket connection with the doctor
 
-        private void CreateSocketConnection()
+        private void ConnectToDoctor()
         {
             try
             {
@@ -474,6 +479,7 @@ namespace CardiacRehab
 
                 if (doctorIp != null)
                 {
+                    socketToClinician.NoDelay = true;
                     System.Net.IPAddress remoteIPAddy = System.Net.IPAddress.Parse(doctorIp);
                     System.Net.IPEndPoint remoteEndPoint = new System.Net.IPEndPoint(remoteIPAddy, 5000 + patientIndex - 1);
                     socketToClinician.Connect(remoteEndPoint);

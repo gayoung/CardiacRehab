@@ -48,36 +48,23 @@ namespace CardiacRehab
         {
             PatientList = list;
 
-            for(int index=0; index < PatientList.Count; index++)
-            {
-                ContactInfo patientinfo = PatientList.ElementAt(index);
-                Console.WriteLine(patientinfo.address);
-            }
-
             InitializeComponent();
-            //userid = currentuser;
-            //sessionID = session;
-
-            //GetLocalIP();
-            //InitializeComponent();
-
-            //// patients send the biodata from port 5000-5005
-            //int[] ports = new int[6] { 5000, 5001, 5002, 5003, 5004, 5005 };
-            //InitializeBioSockets(ports);
-
+            AsyncServer socketServer = new AsyncServer(PatientList, this);
+            socketServer.StartListening();
         }
 
-        private void DoctorWindow_Loaded(object sender, RoutedEventArgs e)
+        #region function to handle all received data sent from each of the patients
+
+        public void processData(String data)
         {
-            //int[] kinectOutPorts = new int[6] { 4531, 4532, 4533, 4534, 4535, 4536 };
-            //InitializeKinect(kinectOutPorts);
-            //InitializeAudio();
+            // test code
+            Console.WriteLine(data);
 
-            //InitializeECG();
-            ////InitTimer();
+            // need to update the UI to display the new values
 
-            //this.DataContext = this;
+            // later need to add methods to give clinicians warning
         }
+        #endregion
 
         #region Helper functions
 

@@ -218,8 +218,8 @@ namespace CardiacRehab
         public void InitTimer()
         {
             checkForDocTimer = new System.Windows.Threading.DispatcherTimer();
-            checkForDocTimer.Tick += new EventHandler(mimicPhoneTimer_Tick);
-            checkForDocTimer.Interval = new TimeSpan(0, 0, 5); ; // 5 seconds
+            checkForDocTimer.Tick += new EventHandler(CheckForDocIP);
+            checkForDocTimer.Interval = new TimeSpan(0, 0, 10); ; // 10 seconds
             checkForDocTimer.Start();
         }
 
@@ -230,7 +230,7 @@ namespace CardiacRehab
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void mimicPhoneTimer_Tick(object sender, EventArgs e)
+        private void CheckForDocIP(object sender, EventArgs e)
         {
             ContactInfo patientInfo = CheckSession();
 

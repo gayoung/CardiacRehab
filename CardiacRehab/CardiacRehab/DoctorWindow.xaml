@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
         xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
         Title="DoctorWindow" Height="780" Width="1024" WindowStartupLocation="CenterScreen"
-        Loaded="DoctorWindow_Loaded" WindowState="Maximized">
+        WindowState="Maximized">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <k:KinectSensorChooserUI HorizontalAlignment="Center" VerticalAlignment="Top" Name="sensorChooserUi" />
         <Grid>
