@@ -20,7 +20,7 @@ class doctorContacts(Resource):
 	def get(self, clinician_id):
 		if(len(doc_contacts) != 0):
 			return {"address": doc_contacts["address"], "name": doc_contacts["name"], 
-			"id": doc_contacts["id"], "session": doc_contacts["session"], "assigned": doc_contacts["assigned"]}
+			"id": doc_contacts["id"], "session": doc_contacts["session"], "assigned_index": doc_contacts["assigned_index"]}
 		else:
 			return "no data"
 	
@@ -30,9 +30,10 @@ class doctorContacts(Resource):
 		doc_contacts["name"] = data["name"]
 		doc_contacts["id"] = data["id"]
 		doc_contacts["session"] = data["session"]
-		doc_contacts["assigned"] = data["assigned_index"]
+		doc_contacts["assigned_index"] = data["assigned_index"]
+		
 		return {"address": data['address'], "name": data["name"], "id": data["id"],
-		"session": data["session"], "assigned": data["assigned_index"]}
+		"session": data["session"], "assigned_index": data["assigned_index"]}
 		
 	def delete(self, clinician_id):
 		doc_contacts.clear()
@@ -42,7 +43,7 @@ class patientContacts(Resource):
 	def get(self, clinician_id, patient_id):
 		if(len(patient_contacts) != 0):
 			return {"address": patient_contacts["address"], "name": patient_contacts["name"],
-			"id": patient_contacts["id"], "session": patient_contacts["session"], "assigned": patient_contacts["assigned"]}
+			"id": patient_contacts["id"], "session": patient_contacts["session"], "assigned_index": patient_contacts["assigned_index"]}
 		else:
 			return "no data"
 	
@@ -52,9 +53,10 @@ class patientContacts(Resource):
 		patient_contacts["name"] = data["name"]
 		patient_contacts["id"] = data["id"]
 		patient_contacts["session"] = data["session"]
-		patient_contacts["assigned"] = data["assigned_index"]
+		patient_contacts["assigned_index"] = data["assigned_index"]
+		
 		return {"address": data['address'], "name": data["name"], "id": data["id"],
-		"session": data["session"], "assigned": data["assigned_index"]}
+		"session": data["session"], "assigned_index": data["assigned_index"]}
 		
 	def delete(self, clinician_id, patient_id):
 		patient_contacts.clear()

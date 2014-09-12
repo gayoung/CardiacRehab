@@ -36,6 +36,8 @@ namespace CardiacRehab
     {
         List<ContactInfo> PatientList;
 
+        String wirelessIP;
+
         WaveOut wo = new WaveOut();
         WaveFormat wf = new WaveFormat(16000, 1);
         BufferedWaveProvider mybufferwp = null;
@@ -49,8 +51,31 @@ namespace CardiacRehab
             PatientList = list;
 
             InitializeComponent();
-            AsyncServer socketServer = new AsyncServer(PatientList, this);
+            GetLocalIP();
+            AsyncServer socketServer = new AsyncServer(PatientList, this, wirelessIP);
             socketServer.StartListening();
+        }
+
+        private void GetLocalIP()
+        {
+            IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+            int Ipcounter = 0;
+            foreach (IPAddress addr in localIPs)
+            {
+                if (addr.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    if (Ipcounter == 0)
+                    {
+                        //patientLocalIp = addr.ToString();
+                        wirelessIP = addr.ToString();
+                    }
+                    else if (Ipcounter == 1)
+                    {
+                        wirelessIP = addr.ToString();
+                    }
+                    Ipcounter++;
+                }
+            }
         }
 
         #region function to handle all received data sent from each of the patients
@@ -209,7 +234,7 @@ namespace CardiacRehab
 
         private void connect2_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void InitializeAudio()
@@ -313,3 +338,5 @@ namespace CardiacRehab
 
     }
 }
+
+

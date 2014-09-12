@@ -121,11 +121,20 @@ namespace CardiacRehab
         private void GetIHealthAccount()
         {
             DatabaseClass db = new DatabaseClass();
+
             List<String>[] result = db.SelectRecords("username, password", "authentication", "role='iHealth" + patientIndex.ToString().Trim() + "'");
             if(result[0] != null)
             {
-                ihealth_email = result[0][0].Trim();
-                ihealth_password = result[1][0].Trim();
+                if(result[0].Count > 0)
+                {
+                    ihealth_email = result[0][0].Trim();
+                    ihealth_password = result[1][0].Trim();
+                }
+                else
+                {
+                    Console.WriteLine("Empty Result");
+                }
+                
             }
             else
             {

@@ -231,7 +231,7 @@ namespace CardiacRehab
             for (int index = 0; index < connected_patients.Count; index++)
             {
                 ContactInfo patientInfo = connected_patients.ElementAt(index);
-                patientInfo.assigned_index = index;
+                patientInfo.assigned_index = index+1;
 
                 String recordValue = patientInfo.id.ToString() + ",  " + doctorId.ToString() + ", NOW(), 0";
                 int sessionID = db.InsertRecord("patient_session", "patient_id, staff_id, date_start, chosen_level", recordValue);

@@ -109,8 +109,8 @@ namespace CardiacRehab
         private void StartApplication()
         {
             // textbox in the UI for testing purposes
-            //_writer = new TextBoxStreamWriter(txtMessage);
-            //Console.SetOut(_writer);
+            _writer = new TextBoxStreamWriter(txtMessage);
+            Console.SetOut(_writer);
 
             ihealth = new IHealthClass(patientIndex, this);
             ihealth.GetCode();
@@ -143,7 +143,7 @@ namespace CardiacRehab
 
 
             // Disable this function if testing with InitTimer()
-            //InitMockBPTimer();
+            InitMockBPTimer();
             InitTimer();
         }
 
@@ -189,7 +189,7 @@ namespace CardiacRehab
         {
             mimicBPTimer = new System.Windows.Threading.DispatcherTimer();
             mimicBPTimer.Tick += new EventHandler(mimicBP_timer);
-            mimicBPTimer.Interval = new TimeSpan(0, 0, 10); ; // 3 min
+            mimicBPTimer.Interval = new TimeSpan(0, 0, 20); ; // 3 min
             mimicBPTimer.Start();
         }
 
@@ -226,6 +226,14 @@ namespace CardiacRehab
                         {
                             String[] bpdata = received[i].Split(',');
                             bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = bpdata[0] + " / " + bpdata[1]));
+
+                            String patientLabel = "patient" + patientIndex;
+                            String data;
+                            byte[] dataToClinician;
+
+                            data = patientLabel + "-" + user.ToString() + "|" + "BP " + bpdata[0] + " " + bpdata[1] + "\n";
+                            dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                            socketToClinician.Send(dataToClinician);
                         }
                     }
                 }
@@ -282,8 +290,8 @@ namespace CardiacRehab
             Random r = new Random();
             int heartRate = r.Next(60, 200);
             int oxygen = r.Next(93, 99);
-            int systolic = r.Next(100, 180);
-            int diastolic = r.Next(50, 120);
+            //int systolic = r.Next(100, 180);
+            //int diastolic = r.Next(50, 120);
 
             // testing for bike data (values may not be in correct range)
             int powerVal = r.Next(20, 40);
@@ -294,7 +302,7 @@ namespace CardiacRehab
             // modify patient UI labels
             hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = heartRate.ToString() + " bpm"));
             oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = oxygen.ToString() + " %"));
-            bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
+            //bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
 
             String patientLabel = "patient" + patientIndex;
 
@@ -309,9 +317,9 @@ namespace CardiacRehab
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 socketToClinician.Send(dataToClinician);
 
-                data = patientLabel + "-" + user.ToString() + "|" + "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
-                dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                socketToClinician.Send(dataToClinician);
+                //data = patientLabel + "-" + user.ToString() + "|" + "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
+                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                //socketToClinician.Send(dataToClinician);
 
                 data = patientLabel + "-" + user.ToString() + "|" + "EC -592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
@@ -397,7 +405,7 @@ namespace CardiacRehab
                         }
                     }
                 }
-                if (data[0] == "BP")
+                if (data[0] == "PB")
                 {
                     // get data from the cloud
                     // Once prompted by the phone, pull every 30 seconds 

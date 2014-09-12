@@ -13,6 +13,7 @@ namespace CardiacRehab
 {
     class AsyncServer
     {
+        String docIP;
         private AsyncCallback socketWorkerCallback;
         private List<Socket> socket_list = new List<Socket>();
         private List<Socket> socketWorker_list = new List<Socket>();
@@ -48,10 +49,11 @@ namespace CardiacRehab
             public int port;
         }
 
-        public AsyncServer(List<ContactInfo> list, DoctorWindow docwin)
+        public AsyncServer(List<ContactInfo> list, DoctorWindow docwin, String ip)
         {
             PatientInfos = list;
             currentwindow = docwin;
+            docIP = ip;
         }
         // code for this section was modified from 
         // http://social.msdn.microsoft.com/Forums/en-US/f3151296-8064-4358-98a3-7ecf3d2c474b/multiple-ports-listening-on-c?forum=ncl
@@ -71,8 +73,8 @@ namespace CardiacRehab
                     Socket currentSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     currentSocket.NoDelay = true;
                     //Console.WriteLine("listening on :  " + localIP + ":" + portNum.ToString());
-                    IPAddress addy = IPAddress.Parse(patient.address);
-                    IPEndPoint iplocal = new IPEndPoint(addy, 5000 + patient.assigned_index);
+                    IPAddress addy = IPAddress.Parse(docIP);
+                    IPEndPoint iplocal = new IPEndPoint(addy, 5000 + patient.assigned_index-1);
                     //bind to local IP Address
                     currentSocket.Bind(iplocal);
                     //start listening -- 4 is max connections queue, can be changed

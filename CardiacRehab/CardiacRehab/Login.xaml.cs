@@ -99,8 +99,6 @@ namespace CardiacRehab
                         List<String>[] patientResult = db.SelectRecords("staff_id", "patient", "patient_id=" + userid);
                         docID = patientResult[0][0].Trim();
 
-                        InitTimer();
-
                         ContactInfo patientinfo = new ContactInfo();
                         patientinfo.id = userid;
                         patientinfo.name = username;
@@ -113,6 +111,9 @@ namespace CardiacRehab
 
                         warning_label.Content = "Waiting for the Clinician...";
                         warning_label.Visibility = System.Windows.Visibility.Visible;
+
+                        InitTimer();
+
                     }
                     else
                     {
@@ -206,7 +207,6 @@ namespace CardiacRehab
             if(patientinfo != "\"no data\"")
             {
                 patientData = JsonConvert.DeserializeObject<ContactInfo>(patientinfo);
-
                 return patientData;
             }
             else
@@ -234,23 +234,35 @@ namespace CardiacRehab
         {
             ContactInfo patientInfo = CheckSession();
 
-            if (patientInfo != null)
+            if(patientInfo != null)
             {
-                ContactInfo currentdocInfo = GetDoctorInfo();
-                warning_label.Content = "Connected!";
-                warning_label.Visibility = System.Windows.Visibility.Visible;
+                if (patientInfo.session != 0)
+                {
+                    ContactInfo currentdocInfo = GetDoctorInfo();
+                    warning_label.Content = "Connected!";
+                    warning_label.Visibility = System.Windows.Visibility.Visible;
 
-                sessionID = patientInfo.session;
-                int patientindex = patientInfo.assigned_index;
-                String doctorIP = currentdocInfo.address;
+                    sessionID = patientInfo.session;
+                    int patientindex = patientInfo.assigned_index;
+                    String doctorIP = currentdocInfo.address;
 
-                checkForDocTimer.Stop();
+                    checkForDocTimer.Stop();
 
-                PatientWindow patientWindow = new PatientWindow(patientindex, userid, sessionID, doctorIP, wirelessIP);
-                patientWindow.Show();
-                patientWindow.Closed += new EventHandler(MainWindowClosed);
-                this.Hide();
+                    PatientWindow patientWindow = new PatientWindow(patientindex, userid, sessionID, doctorIP, wirelessIP);
+                    patientWindow.Show();
+                    patientWindow.Closed += new EventHandler(MainWindowClosed);
+                    this.Hide();
+                }
+                else
+                {
+                    Console.WriteLine("session ID has not been updated. (i.e. doctor has not started the session)");
+                }
             }
+            else
+            {
+                Console.WriteLine("There is no patient information at the specified URL.");
+            }
+            
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
