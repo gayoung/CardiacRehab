@@ -38,6 +38,37 @@ namespace CardiacRehab
 
         String wirelessIP;
 
+        // all TCP sockets getting biometric data from the patients
+        ClinicianSockets patient1hrox;
+        ClinicianSockets patient1uibp;
+        ClinicianSockets patient1ecg;
+        ClinicianSockets patient1bike;
+
+        ClinicianSockets patient2hrox;
+        ClinicianSockets patient2uibp;
+        ClinicianSockets patient2ecg;
+        ClinicianSockets patient2bike;
+
+        ClinicianSockets patient3hrox;
+        ClinicianSockets patient3uibp;
+        ClinicianSockets patient3ecg;
+        ClinicianSockets patient3bike;
+
+        ClinicianSockets patient4hrox;
+        ClinicianSockets patient4uibp;
+        ClinicianSockets patient4ecg;
+        ClinicianSockets patient4bike;
+
+        ClinicianSockets patient5hrox;
+        ClinicianSockets patient5uibp;
+        ClinicianSockets patient5ecg;
+        ClinicianSockets patient5bike;
+
+        ClinicianSockets patient6hrox;
+        ClinicianSockets patient6uibp;
+        ClinicianSockets patient6ecg;
+        ClinicianSockets patient6bike;
+
         WaveOut wo = new WaveOut();
         WaveFormat wf = new WaveFormat(16000, 1);
         BufferedWaveProvider mybufferwp = null;
@@ -52,8 +83,65 @@ namespace CardiacRehab
 
             InitializeComponent();
             GetLocalIP();
-            AsyncServer socketServer = new AsyncServer(PatientList, this, wirelessIP);
-            socketServer.StartListening();
+            InitializeAllPatientSockets();
+        }
+
+        private void InitializeAllPatientSockets()
+        {
+            // Really need to refactor!!!
+            patient1hrox = new ClinicianSockets(wirelessIP, 5001, this);
+            patient1hrox.InitializeCliniSockets();
+            patient1uibp = new ClinicianSockets(wirelessIP, 5002, this);
+            patient1uibp.InitializeCliniSockets();
+            patient1ecg = new ClinicianSockets(wirelessIP, 5003, this);
+            patient1ecg.InitializeCliniSockets();
+            patient1bike = new ClinicianSockets(wirelessIP, 5004, this);
+            patient1bike.InitializeCliniSockets();
+
+            //patient2hrox = new ClinicianSockets(wirelessIP, 5011, this);
+            //patient2hrox.InitializeCliniSockets();
+            //patient2uibp = new ClinicianSockets(wirelessIP, 5012, this);
+            //patient2uibp.InitializeCliniSockets();
+            //patient2ecg = new ClinicianSockets(wirelessIP, 5013, this);
+            //patient2ecg.InitializeCliniSockets();
+            //patient2bike = new ClinicianSockets(wirelessIP, 5014, this);
+            //patient2bike.InitializeCliniSockets();
+
+            //patient3hrox = new ClinicianSockets(wirelessIP, 5021, this);
+            //patient3hrox.InitializeCliniSockets();
+            //patient3uibp = new ClinicianSockets(wirelessIP, 5022, this);
+            //patient3uibp.InitializeCliniSockets();
+            //patient3ecg = new ClinicianSockets(wirelessIP, 5023, this);
+            //patient3ecg.InitializeCliniSockets();
+            //patient3bike = new ClinicianSockets(wirelessIP, 5024, this);
+            //patient3bike.InitializeCliniSockets();
+
+            //patient4hrox = new ClinicianSockets(wirelessIP, 5031, this);
+            //patient4hrox.InitializeCliniSockets();
+            //patient4uibp = new ClinicianSockets(wirelessIP, 5032, this);
+            //patient4uibp.InitializeCliniSockets();
+            //patient4ecg = new ClinicianSockets(wirelessIP, 5033, this);
+            //patient4ecg.InitializeCliniSockets();
+            //patient4bike = new ClinicianSockets(wirelessIP, 5034, this);
+            //patient4bike.InitializeCliniSockets();
+
+            //patient5hrox = new ClinicianSockets(wirelessIP, 5041, this);
+            //patient5hrox.InitializeCliniSockets();
+            //patient5uibp = new ClinicianSockets(wirelessIP, 5042, this);
+            //patient5uibp.InitializeCliniSockets();
+            //patient5ecg = new ClinicianSockets(wirelessIP, 5043, this);
+            //patient5ecg.InitializeCliniSockets();
+            //patient5bike = new ClinicianSockets(wirelessIP, 5044, this);
+            //patient5bike.InitializeCliniSockets();
+
+            //patient6hrox = new ClinicianSockets(wirelessIP, 5051, this);
+            //patient6hrox.InitializeCliniSockets();
+            //patient6uibp = new ClinicianSockets(wirelessIP, 5052, this);
+            //patient6uibp.InitializeCliniSockets();
+            //patient6ecg = new ClinicianSockets(wirelessIP, 5053, this);
+            //patient6ecg.InitializeCliniSockets();
+            //patient6bike = new ClinicianSockets(wirelessIP, 5054, this);
+            //patient6bike.InitializeCliniSockets();
         }
 
         private void GetLocalIP()
@@ -80,14 +168,120 @@ namespace CardiacRehab
 
         #region function to handle all received data sent from each of the patients
 
-        public void processData(String data)
+        public void UpdateUI(String data, int portNum)
         {
             // test code
             Console.WriteLine(data);
+            String[] processedString = data.Trim().Split(' ');
+            String header = processedString[0].Trim();
+
+            switch (portNum)
+            {
+                case 5001:  // patient 1 heart rate + oxygen sat
+                    if (header == "HR")
+                    {
+                        UpdatePatientHR(processedString[1], hrValue1);
+                    }
+                    else if (header == "OX")
+                    {
+                        UpdatePatientOX(processedString[1], oxiValue1);
+                    }
+                    break;
+                case 5002:  // patient 1 intensity + blood pressure
+                    if(header == "UI")
+                    {
+                        UpdatePatientUI(processedString[1], uiValue1);
+                    }
+                    else if(header == "BP")
+                    {
+                        UpdatePatientBP(processedString[1], processedString[2], bpSysValue1, bpDiaValue1);
+                    }
+                    break;
+                case 5003:  // patient 1 ECG
+                    // graph ECG
+                    break;
+                case 5004:  // patient 1 bike data
+                    // not sure what to do with this info yet?
+                    if(header == "PW")
+                    {
+                        Console.WriteLine(header);
+                    }
+                    else if(header == "WR")
+                    {
+                        Console.WriteLine(header);
+                    }
+                    else if(header == "CR")
+                    {
+                        Console.WriteLine(header);
+                    }
+                    break;
+                case 5011:
+                    break;
+                case 5012:
+                    break;
+                case 5013:
+                    break;
+                case 5014:
+                    break;
+                case 5021:
+                    break;
+                case 5022:
+                    break;
+                case 5023:
+                    break;
+                case 5024:
+                    break;
+                case 5031:
+                    break;
+                case 5032:
+                    break;
+                case 5033:
+                    break;
+                case 5034:
+                    break;
+                case 5041:
+                    break;
+                case 5042:
+                    break;
+                case 5043:
+                    break;
+                case 5044:
+                    break;
+                case 5051:
+                    break;
+                case 5052:
+                    break;
+                case 5053:
+                    break;
+                case 5054:
+                    break;
+
+            }
 
             // need to update the UI to display the new values
 
             // later need to add methods to give clinicians warning
+        }
+
+        private void UpdatePatientHR(String hrdata, Label hrValLabel)
+        {
+            hrValLabel.Content = hrdata.Trim();
+        }
+
+        private void UpdatePatientOX(String oxdata, Label oxValLabel)
+        {
+            oxValLabel.Content = oxdata.Trim();
+        }
+
+        private void UpdatePatientUI(String uidata, Label uiValLabel)
+        {
+            uiValLabel.Content = uidata.Trim();
+        }
+
+        private void UpdatePatientBP(String systolic, String diastolic, Label sysLabel, Label diaLabel)
+        {
+            sysLabel.Content = systolic.Trim();
+            diaLabel.Content = diastolic.Trim();
         }
         #endregion
 
@@ -230,6 +424,7 @@ namespace CardiacRehab
         #region Connect button triggers
         private void connect1_Click(object sender, RoutedEventArgs e)
         {
+
         }
 
         private void connect2_Click(object sender, RoutedEventArgs e)

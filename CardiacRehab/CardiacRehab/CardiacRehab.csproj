@@ -83,8 +83,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AsyncServer.cs" />
     <Compile Include="BioSocket.cs" />
+    <Compile Include="ClinicianSockets.cs" />
     <Compile Include="HttpRequestClass.cs" />
     <Compile Include="IHealthClass.cs" />
     <Compile Include="PatientList.xaml.cs">

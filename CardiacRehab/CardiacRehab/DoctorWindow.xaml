@@ -64,6 +64,8 @@
                     <Label x:Name="bpDiaValue6" Content="--" FontWeight="Bold" Margin="39,0,25,0" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="bpm" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="30,0,0,2" Grid.Row="1" Grid.Column="2"/>
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
+                    <Label x:Name="uiLabel6" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="13,0,17,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
+                    <Label x:Name="uiValue6" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="31,0,13,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
 
                 </Grid>
             </Border>
@@ -113,6 +115,8 @@
                     <Label x:Name="bpDiaValue5" Content="--" FontWeight="Bold" Margin="39,0,25,0" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="bpm" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="30,0,0,2" Grid.Row="1" Grid.Column="2"/>
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
+                    <Label x:Name="uiLabel5" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="13,0,15,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
+                    <Label x:Name="uiValue5" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="32,3,10,7" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
 
                 </Grid>
             </Border>
@@ -162,6 +166,8 @@
                     <Label x:Name="bpDiaValue4" Content="--" FontWeight="Bold" Margin="37,0,27,0" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="bpm" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="30,0,0,2" Grid.Row="1" Grid.Column="2"/>
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
+                    <Label x:Name="uiLabel4" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="13,0,18,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
+                    <Label x:Name="uiValue4" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="30,0,14,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
 
                 </Grid>
             </Border>
@@ -211,6 +217,8 @@
                     <Label x:Name="bpDiaValue3" Content="--" FontWeight="Bold" Margin="39,0,25,0" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="bpm" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="30,0,0,2" Grid.Row="1" Grid.Column="2"/>
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
+                    <Label x:Name="uiLabel3" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="10,0,20,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
+                    <Label x:Name="uiValue3" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="0,0,16,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="50"/>
 
                 </Grid>
             </Border>
@@ -260,6 +268,8 @@
                     <Label x:Name="bpDiaValue2" Content="--" FontWeight="Bold" Margin="39,0,25,0" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="bpm" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="30,0,0,2" Grid.Row="1" Grid.Column="2"/>
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
+                    <Label x:Name="uiLabel2" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="13,0,15,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
+                    <Label x:Name="uiValue2" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="0,3,10,7" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="50"/>
 
                 </Grid>
             </Border>
@@ -318,6 +328,8 @@
                     <Label x:Name="bpDiaValue1" Content="--" FontWeight="Bold" Margin="39,0,25,0" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="bpm" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="30,0,0,2" Grid.Row="1" Grid.Column="2"/>
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
+                    <Label x:Name="uiLabel1" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="10,0,19,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
+                    <Label x:Name="uiValue1" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="0,0,15,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="50"/>
 
                 </Grid>
             </Border>

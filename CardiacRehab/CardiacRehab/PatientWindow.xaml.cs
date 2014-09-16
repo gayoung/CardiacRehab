@@ -48,8 +48,7 @@ namespace CardiacRehab
 
         // Timer to pull blood pressure data from the iHealth Cloud
         private DispatcherTimer BPTimer;
-
-        Socket socketToClinician = null;
+        //Socket socketToClinician = null;
 
         //kinect sensor 
         private KinectSensorChooser sensorChooser;
@@ -79,6 +78,11 @@ namespace CardiacRehab
         BioSocket bpSocket;
         BioSocket ecgSocket;
         BioSocket bikeSocket;
+
+        Socket HrOxToClinician = null;
+        Socket UiBpToClinician = null;
+        Socket EcgToClinician = null;
+        Socket BikeToClinician = null;
 
         PhidgetEncoder rotary_encoder;
         IHealthClass ihealth;
@@ -227,13 +231,12 @@ namespace CardiacRehab
                             String[] bpdata = received[i].Split(',');
                             bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = bpdata[0] + " / " + bpdata[1]));
 
-                            String patientLabel = "patient" + patientIndex;
                             String data;
                             byte[] dataToClinician;
 
-                            data = patientLabel + "-" + user.ToString() + "|" + "BP " + bpdata[0] + " " + bpdata[1] + "\n";
+                            data = "BP " + bpdata[0] + " " + bpdata[1] + "\n";
                             dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                            socketToClinician.Send(dataToClinician);
+                            UiBpToClinician.Send(dataToClinician);
                         }
                     }
                 }
@@ -304,26 +307,40 @@ namespace CardiacRehab
             oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = oxygen.ToString() + " %"));
             //bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
 
-            String patientLabel = "patient" + patientIndex;
-
             try
             {
                 //// mock data sent to the clinician
-                data = patientLabel + "-" + user.ToString() + "|" + "HR " + heartRate.ToString() + "\n";
+                data = "HR " + heartRate.ToString() + "\n";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                socketToClinician.Send(dataToClinician);
+                HrOxToClinician.Send(dataToClinician);
 
-                data = patientLabel + "-" + user.ToString() + "|" + "OX " + oxygen.ToString() + "\n";
+                data = "OX " + oxygen.ToString() + "\n";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                socketToClinician.Send(dataToClinician);
+                HrOxToClinician.Send(dataToClinician);
 
-                //data = patientLabel + "-" + user.ToString() + "|" + "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
+                //data = "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
                 //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                //socketToClinician.Send(dataToClinician);
+                //UiBpToClinician.Send(dataToClinician);
 
-                data = patientLabel + "-" + user.ToString() + "|" + "EC -592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
+                data = "-592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-                socketToClinician.Send(dataToClinician);
+                EcgToClinician.Send(dataToClinician);
+
+                data = "PW " + powerVal.ToString() + "\n";
+                dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                BikeToClinician.Send(dataToUnity);
+
+                data = "";
+
+                data = "WR " + speedVal.ToString() + "\n";
+                dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                BikeToClinician.Send(dataToUnity);
+
+                data = "";
+
+                data = "CR " + cadenceVal.ToString() + "\n";
+                dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                BikeToClinician.Send(dataToUnity);
 
                 if (unityBikeSocket.unitySocketWorker != null)
                 {
@@ -482,21 +499,11 @@ namespace CardiacRehab
         {
             try
             {
-                //create a new client socket
-                socketToClinician = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-                if (doctorIp != null)
-                {
-                    socketToClinician.NoDelay = true;
-                    System.Net.IPAddress remoteIPAddy = System.Net.IPAddress.Parse(doctorIp);
-                    System.Net.IPEndPoint remoteEndPoint = new System.Net.IPEndPoint(remoteIPAddy, 5000 + patientIndex - 1);
-                    socketToClinician.Connect(remoteEndPoint);
-                }
-                else
-                {
-                    MessageBox.Show("doctor IP is null");
-                }
-
+                int indexNumber = 5001+(patientIndex - 1) * 10;
+                HrOxToClinician = CreateClinicianSocket(indexNumber);
+                UiBpToClinician = CreateClinicianSocket(indexNumber++);
+                EcgToClinician = CreateClinicianSocket(indexNumber++);
+                BikeToClinician = CreateClinicianSocket(indexNumber++);
             }
 
             catch (SocketException e)
@@ -504,6 +511,26 @@ namespace CardiacRehab
                 Console.WriteLine("SocketException thrown at CreateSocketConnection: " + e.ErrorCode.ToString());
                 MessageBox.Show(e.Message);
             }
+        }
+
+        private Socket CreateClinicianSocket(int port)
+        {
+            Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            if (doctorIp != null)
+            {
+                newsocket.NoDelay = true;
+                System.Net.IPAddress remoteIPAddy = System.Net.IPAddress.Parse(doctorIp);
+                int indexNumber = 5001 + (patientIndex - 1) * 10;
+                System.Net.IPEndPoint remoteEndPoint = new System.Net.IPEndPoint(remoteIPAddy, indexNumber);
+                newsocket.Connect(remoteEndPoint);
+            }
+            else
+            {
+                MessageBox.Show("doctor IP is null");
+                newsocket = null;
+            }
+            return newsocket;
         }
 
         #endregion

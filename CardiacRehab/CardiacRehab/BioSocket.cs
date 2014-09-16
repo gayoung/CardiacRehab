@@ -17,7 +17,7 @@ namespace CardiacRehab
     /// class representation of the bio data of the patient as
     /// TCP packet
     /// </summary>
-    class BioSocketPacket
+    class ClinicalSocketPacket
     {
         public System.Net.Sockets.Socket packetSocket;
         public byte[] dataBuffer = new byte[200];
@@ -97,7 +97,7 @@ namespace CardiacRehab
                     socketBioWorkerCallback = new AsyncCallback(OnBioDataReceived);
                 }
 
-                BioSocketPacket sockpkt = new BioSocketPacket();
+                ClinicalSocketPacket sockpkt = new ClinicalSocketPacket();
                 soc.NoDelay = true;
                 sockpkt.packetSocket = soc;
                 //start listening for data
@@ -114,7 +114,7 @@ namespace CardiacRehab
         {
             try
             {
-                BioSocketPacket socketID = (BioSocketPacket)asyn.AsyncState;
+                ClinicalSocketPacket socketID = (ClinicalSocketPacket)asyn.AsyncState;
                 //end receive
                 int end = 0;
                 end = socketID.packetSocket.EndReceive(asyn);
