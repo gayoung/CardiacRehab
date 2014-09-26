@@ -73,6 +73,7 @@ namespace CardiacRehab
         {
             try
             {
+                Console.WriteLine("OnBioSocketConnection at "+PortNumber);
                 bioSocketWorker = socketBioListener.EndAccept(asyn);
                 bioSocketWorker.NoDelay = true;
                 WaitForBioData(bioSocketWorker);
@@ -92,6 +93,7 @@ namespace CardiacRehab
         {
             try
             {
+                Console.WriteLine("WaitForBioData at " + PortNumber);
                 if (socketBioWorkerCallback == null)
                 {
                     socketBioWorkerCallback = new AsyncCallback(OnBioDataReceived);
@@ -114,6 +116,7 @@ namespace CardiacRehab
         {
             try
             {
+                Console.WriteLine("OnBioDataReceived at " + PortNumber);
                 ClinicalSocketPacket socketID = (ClinicalSocketPacket)asyn.AsyncState;
                 //end receive
                 int end = 0;
@@ -125,6 +128,7 @@ namespace CardiacRehab
                 // (i.e. zero bytes received)
                 if (end == 0)
                 {
+                    Console.WriteLine("disconnected at " + PortNumber);
                     socketID.packetSocket.Close();
                     socketBioListener.Close();
                     InitializeBioSockets();
@@ -132,10 +136,13 @@ namespace CardiacRehab
                 // phone is connected!
                 else
                 {
+                    Console.WriteLine("received at " + PortNumber);
                     char[] chars = new char[end + 1];
                     Decoder d = Encoding.UTF8.GetDecoder();
                     int len = d.GetChars(socketID.dataBuffer, 0, end, chars, 0);
                     String tmp = new String(chars);
+
+                    Console.WriteLine("received: " + tmp);
 
                     window.ProcessBioSocketData(tmp, PortNumber);
                     InsertDataToDb(tmp);

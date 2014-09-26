@@ -31,7 +31,7 @@ namespace CardiacRehab
         String wirelessIP;
         String docID;
         String currentRole = "";
-        String hostUrl = "http://192.168.0.100:5050/doctors/";
+        String hostUrl = "http://192.168.0.102:5050/doctors/";
         int modeChosen;
 
         private DispatcherTimer checkForDocTimer;

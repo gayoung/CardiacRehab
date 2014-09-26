@@ -66,4 +66,4 @@ api.add_resource(doctorContacts, '/doctors/<int:clinician_id>/')
 api.add_resource(patientContacts, '/doctors/<int:clinician_id>/patients/<int:patient_id>/')
 
 if __name__ == '__main__':
-    app.run(host='192.168.0.100', port=5050)
+    app.run(host='192.168.0.102', port=5050)
