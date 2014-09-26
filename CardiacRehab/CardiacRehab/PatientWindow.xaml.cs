@@ -135,27 +135,27 @@ namespace CardiacRehab
             // later will have different port for different devices 
             Console.WriteLine("initializing 4444");
             otherSocket = new BioSocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
-            Thread otherThread = new Thread(new ThreadStart(otherSocket.InitializeBioSockets));
-            otherThread.Start();
-            //otherSocket.InitializeBioSockets();
+            //Thread otherThread = new Thread(new ThreadStart(otherSocket.InitializeBioSockets));
+            //otherThread.Start();
+            otherSocket.InitializeBioSockets();
 
             Console.WriteLine("initializing 4445");
             bpSocket = new BioSocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
-            Thread bpThread = new Thread(new ThreadStart(bpSocket.InitializeBioSockets));
-            bpThread.Start();
-            //bpSocket.InitializeBioSockets();
+            //Thread bpThread = new Thread(new ThreadStart(bpSocket.InitializeBioSockets));
+            //bpThread.Start();
+            bpSocket.InitializeBioSockets();
 
             Console.WriteLine("initializing 4446");
             ecgSocket = new BioSocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
-            Thread ecgThread = new Thread(new ThreadStart(ecgSocket.InitializeBioSockets));
-            ecgThread.Start();
-            //ecgSocket.InitializeBioSockets();
+            //Thread ecgThread = new Thread(new ThreadStart(ecgSocket.InitializeBioSockets));
+            //ecgThread.Start();
+            ecgSocket.InitializeBioSockets();
 
             Console.WriteLine("initializing 4447");
             bikeSocket = new BioSocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
-            Thread bikeThread = new Thread(new ThreadStart(bikeSocket.InitializeBioSockets));
-            bikeThread.Start();
-            //bikeSocket.InitializeBioSockets();
+            //Thread bikeThread = new Thread(new ThreadStart(bikeSocket.InitializeBioSockets));
+            //bikeThread.Start();
+            bikeSocket.InitializeBioSockets();
             Console.WriteLine ("DONE");
 
 
