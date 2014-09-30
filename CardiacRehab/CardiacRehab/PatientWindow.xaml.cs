@@ -79,6 +79,11 @@ namespace CardiacRehab
         BioSocket ecgSocket;
         BioSocket bikeSocket;
 
+        UdpBiosocket testSocket;
+        UdpBiosocket testSocket2;
+        UdpBiosocket testSocket3;
+        UdpBiosocket testSocket4;
+
         Socket HrOxToClinician = null;
         Socket UiBpToClinician = null;
         Socket EcgToClinician = null;
@@ -119,8 +124,8 @@ namespace CardiacRehab
             //ihealth = new IHealthClass(patientIndex, this);
             //ihealth.GetCode();
 
-            //unityBikeSocket = new UnitySocket(5555);
-            //unityBikeSocket.ConnectToUnity();
+            unityBikeSocket = new UnitySocket(5555);
+            unityBikeSocket.ConnectToUnity();
 
             //turnSocket = new UnitySocket(5556);
             //turnSocket.ConnectToUnity();
@@ -133,35 +138,45 @@ namespace CardiacRehab
             //ConnectToDoctor();
 
             // later will have different port for different devices 
-            Console.WriteLine("initializing 4444");
-            otherSocket = new BioSocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
-            //Thread otherThread = new Thread(new ThreadStart(otherSocket.InitializeBioSockets));
-            //otherThread.Start();
-            otherSocket.InitializeBioSockets();
+            //Console.WriteLine("initializing 4444");
+            //otherSocket = new BioSocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
+            ////Thread otherThread = new Thread(new ThreadStart(otherSocket.InitializeBioSockets));
+            ////otherThread.Start();
+            //otherSocket.InitializeBioSockets();
 
-            Console.WriteLine("initializing 4445");
-            bpSocket = new BioSocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
-            //Thread bpThread = new Thread(new ThreadStart(bpSocket.InitializeBioSockets));
-            //bpThread.Start();
-            bpSocket.InitializeBioSockets();
+            //Console.WriteLine("initializing 4445");
+            //bpSocket = new BioSocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
+            ////Thread bpThread = new Thread(new ThreadStart(bpSocket.InitializeBioSockets));
+            ////bpThread.Start();
+            //bpSocket.InitializeBioSockets();
 
-            Console.WriteLine("initializing 4446");
-            ecgSocket = new BioSocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
-            //Thread ecgThread = new Thread(new ThreadStart(ecgSocket.InitializeBioSockets));
-            //ecgThread.Start();
-            ecgSocket.InitializeBioSockets();
+            //Console.WriteLine("initializing 4446");
+            //ecgSocket = new BioSocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
+            ////Thread ecgThread = new Thread(new ThreadStart(ecgSocket.InitializeBioSockets));
+            ////ecgThread.Start();
+            //ecgSocket.InitializeBioSockets();
 
-            Console.WriteLine("initializing 4447");
-            bikeSocket = new BioSocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
-            //Thread bikeThread = new Thread(new ThreadStart(bikeSocket.InitializeBioSockets));
-            //bikeThread.Start();
-            bikeSocket.InitializeBioSockets();
-            Console.WriteLine ("DONE");
+            //Console.WriteLine("initializing 4447");
+            //bikeSocket = new BioSocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
+            ////Thread bikeThread = new Thread(new ThreadStart(bikeSocket.InitializeBioSockets));
+            ////bikeThread.Start();
+            //bikeSocket.InitializeBioSockets();
+            //Console.WriteLine ("DONE");
+
+            //testSocket = new UdpBiosocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
+            testSocket = new UdpBiosocket("192.168.184.7", 4444, patientIndex, user, sessionID, this);
+            testSocket.InitializeBioSockets();
+            testSocket2 = new UdpBiosocket("192.168.184.7", 4445, patientIndex, user, sessionID, this);
+            testSocket2.InitializeBioSockets();
+            testSocket3 = new UdpBiosocket("192.168.184.7", 4446, patientIndex, user, sessionID, this);
+            testSocket3.InitializeBioSockets();
+            testSocket4 = new UdpBiosocket("192.168.184.7", 4447, patientIndex, user, sessionID, this);
+            testSocket4.InitializeBioSockets();
 
 
             // Disable this function if testing with InitTimer()
             //InitMockBPTimer();
-            //InitTimer();
+            InitTimer();
         }
 
         #region VR code
@@ -274,116 +289,120 @@ namespace CardiacRehab
         ///// The code was modified from
         ///// http://stackoverflow.com/questions/6169288/execute-specified-function-every-x-seconds
         ///// </summary>
-        //public void InitTimer()
-        //{
-        //    mimicPhoneTimer = new System.Windows.Threading.DispatcherTimer();
-        //    mimicPhoneTimer.Tick += new EventHandler(mimicPhoneTimer_Tick);
-        //    mimicPhoneTimer.Interval = new TimeSpan(0, 0, 2); ; // 2 seconds
-        //    mimicPhoneTimer.Start();
-        //}
+        public void InitTimer()
+        {
+            mimicPhoneTimer = new System.Windows.Threading.DispatcherTimer();
+            mimicPhoneTimer.Tick += new EventHandler(mimicPhoneTimer_Tick);
+            mimicPhoneTimer.Interval = new TimeSpan(0, 0, 2); ; // 2 seconds
+            mimicPhoneTimer.Start();
+        }
 
-        ///// <summary>
-        ///// Function called by the timer class.
-        ///// 
-        ///// This method is called every 2 seconds.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void mimicPhoneTimer_Tick(object sender, EventArgs e)
-        //{
-        //    PhoneTestMethod();
-        //}
+        /// <summary>
+        /// Function called by the timer class.
+        /// 
+        /// This method is called every 2 seconds.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void mimicPhoneTimer_Tick(object sender, EventArgs e)
+        {
+            PhoneTestMethod();
+        }
 
-        ///// <summary>
-        ///// method to be used to test the code without the phone
-        ///// </summary>
-        //private void PhoneTestMethod()
-        //{
-        //    String data;
-        //    byte[] dataToClinician;
-        //    byte[] dataToUnity;
+        /// <summary>
+        /// method to be used to test the code without the phone
+        /// </summary>
+        private void PhoneTestMethod()
+        {
+            String data;
+            byte[] dataToClinician;
+            byte[] dataToUnity;
 
-        //    Random r = new Random();
-        //    int heartRate = r.Next(60, 200);
-        //    int oxygen = r.Next(93, 99);
-        //    //int systolic = r.Next(100, 180);
-        //    //int diastolic = r.Next(50, 120);
+            Random r = new Random();
+            int heartRate = r.Next(60, 200);
+            int oxygen = r.Next(93, 99);
+            //int systolic = r.Next(100, 180);
+            //int diastolic = r.Next(50, 120);
 
-        //    // testing for bike data (values may not be in correct range)
-        //    int powerVal = r.Next(20, 40);
-        //    // should be between 100-200 (changed for faster testing)
-        //    int speedVal = r.Next(150, 200);
-        //    int cadenceVal = r.Next(40, 60);
+            // testing for bike data (values may not be in correct range)
+            int powerVal = r.Next(20, 40);
+            // should be between 100-200 (changed for faster testing)
+            int speedVal = r.Next(150, 200);
+            int cadenceVal = r.Next(40, 60);
 
-        //    // modify patient UI labels
-        //    hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = heartRate.ToString() + " bpm"));
-        //    oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = oxygen.ToString() + " %"));
-        //    //bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
+            // modify patient UI labels
+            hrValue.Dispatcher.Invoke((Action)(() => hrValue.Content = heartRate.ToString() + " bpm"));
+            oxiValue.Dispatcher.Invoke((Action)(() => oxiValue.Content = oxygen.ToString() + " %"));
+            //bpValue.Dispatcher.Invoke((Action)(() => bpValue.Content = systolic.ToString() + "/" + diastolic.ToString()));
 
-        //    try
-        //    {
-        //        //// mock data sent to the clinician
-        //        data = "HR " + heartRate.ToString() + "\n";
-        //        dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-        //        HrOxToClinician.Send(dataToClinician);
+            try
+            {
+                //// mock data sent to the clinician
+                //data = "HR " + heartRate.ToString() + "\n";
+                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                //HrOxToClinician.Send(dataToClinician);
 
-        //        data = "OX " + oxygen.ToString() + "\n";
-        //        dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-        //        HrOxToClinician.Send(dataToClinician);
+                //data = "OX " + oxygen.ToString() + "\n";
+                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                //HrOxToClinician.Send(dataToClinician);
 
-        //        //data = "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
-        //        //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-        //        //UiBpToClinician.Send(dataToClinician);
+                //data = "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
+                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                //UiBpToClinician.Send(dataToClinician);
 
-        //        data = "-592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
-        //        dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
-        //        EcgToClinician.Send(dataToClinician);
+                //data = "-592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
+                //dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                //EcgToClinician.Send(dataToClinician);
 
-        //        data = "PW " + powerVal.ToString() + "\n";
-        //        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-        //        BikeToClinician.Send(dataToUnity);
+                //data = "PW " + powerVal.ToString() + "\n";
+                //dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                //BikeToClinician.Send(dataToUnity);
 
-        //        data = "";
+                //data = "";
 
-        //        data = "WR " + speedVal.ToString() + "\n";
-        //        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-        //        BikeToClinician.Send(dataToUnity);
+                //data = "WR " + speedVal.ToString() + "\n";
+                //dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                //BikeToClinician.Send(dataToUnity);
 
-        //        data = "";
+                //data = "";
 
-        //        data = "CR " + cadenceVal.ToString() + "\n";
-        //        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-        //        BikeToClinician.Send(dataToUnity);
+                //data = "CR " + cadenceVal.ToString() + "\n";
+                //dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                //BikeToClinician.Send(dataToUnity);
 
-        //        if (unityBikeSocket.unitySocketWorker != null)
-        //        {
-        //            if (unityBikeSocket.unitySocketWorker.Connected)
-        //            {
-        //                // mock data sent to the Unity Application
-        //                data = "PW " + powerVal.ToString() + "\n";
-        //                dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-        //                unityBikeSocket.unitySocketWorker.Send(dataToUnity);
+                if (unityBikeSocket != null)
+                {
+                    if (unityBikeSocket.unitySocketListener.Connected)
+                    {
+                        // mock data sent to the Unity Application
+                        data = "PW " + powerVal.ToString() + "\n";
+                        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                        unityBikeSocket.unitySocketListener.Send(dataToUnity);
 
-        //                data = "";
+                        data = "";
 
-        //                data = "WR " + speedVal.ToString() + "\n";
-        //                dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-        //                unityBikeSocket.unitySocketWorker.Send(dataToUnity);
+                        data = "WR " + speedVal.ToString() + "\n";
+                        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                        unityBikeSocket.unitySocketListener.Send(dataToUnity);
 
-        //                data = "";
+                        data = "";
 
-        //                data = "CR " + cadenceVal.ToString() + "\n";
-        //                dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-        //                unityBikeSocket.unitySocketWorker.Send(dataToUnity);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
+                        data = "CR " + cadenceVal.ToString() + "\n";
+                        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                        unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                    }
+                    else
+                    {
+                        Console.WriteLine("not connected");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
-        //}
+        }
 
         //#endregion
 

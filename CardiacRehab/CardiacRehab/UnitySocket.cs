@@ -23,15 +23,16 @@ namespace CardiacRehab
         {
             try
             {
-                unitySocketListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                unitySocketListener.NoDelay = true;
+                unitySocketListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                //unitySocketListener.NoDelay = true;
                 IPAddress addy = System.Net.IPAddress.Parse("127.0.0.1");
                 IPEndPoint iplocal = new IPEndPoint(addy, portNumber);
                 //bind to local IP Address
                 unitySocketListener.Bind(iplocal);
                 //start listening -- 4 is max connections queue, can be changed
-                unitySocketListener.Listen(4);
-                unitySocketListener.BeginAccept(new AsyncCallback(OnUnitySocketConnection), null);
+                //unitySocketListener.Listen(4);
+
+                //unitySocketListener.BeginConnect(iplocal, new AsyncCallback(OnUnitySocketConnection), null);
 
                 //create call back for client connections -- aka maybe recieve video here????
             }
@@ -47,7 +48,7 @@ namespace CardiacRehab
             try
             {
                 unitySocketWorker = unitySocketListener.EndAccept(asyn);
-                unitySocketWorker.NoDelay = true;
+                //unitySocketWorker.NoDelay = true;
             }
             catch (ObjectDisposedException)
             {

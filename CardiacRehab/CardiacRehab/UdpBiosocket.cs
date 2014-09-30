@@ -1,0 +1,309 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+
+namespace CardiacRehab
+{
+
+    class UdpBiosocket
+    {
+        private AsyncCallback socketBioWorkerCallback;
+        public Socket socketBioListener;
+        public Socket bioSocketWorker = null;
+        String IpAddress;
+        int PortNumber;
+        PatientWindow window;
+        int patientindex;
+        int patientDbId;
+        int sessionId;
+        byte[] udpDataBuffer = new byte[200];
+
+        public UdpBiosocket(String ip, int port, int index, int dbId, int session, PatientWindow currentwindow)
+        {
+            IpAddress = ip;
+            PortNumber = port;
+            patientindex = index;
+            window = currentwindow;
+            patientDbId = dbId;
+            sessionId = session;
+        }
+
+        public void InitializeBioSockets()
+        {
+            try
+            {
+                //create listening socket
+                socketBioListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                IPAddress addy = IPAddress.Parse(IpAddress);
+                EndPoint iplocal = new IPEndPoint(addy, PortNumber);
+                //bind to local IP Address
+                socketBioListener.Bind(iplocal);
+
+                socketBioListener.BeginReceiveFrom(udpDataBuffer, 0, udpDataBuffer.Length, SocketFlags.None, ref iplocal, DoReceiveFrom, socketBioListener);
+            }
+            catch (SocketException e)
+            {
+                //something went wrong
+                Console.WriteLine("SocketException thrown at InitializeBiosockets");
+                MessageBox.Show(e.Message);
+            }
+
+        }
+
+        private void DoReceiveFrom(IAsyncResult iar)
+        {
+            try
+            {
+                //Get the received message.
+                Socket recvSock = (Socket)iar.AsyncState;
+                EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
+                int msgLen = recvSock.EndReceiveFrom(iar, ref clientEP);
+                byte[] localMsg = new byte[msgLen];
+                Array.Copy(udpDataBuffer, localMsg, msgLen);
+
+                //Start listening for a new message.
+                IPAddress addy = IPAddress.Parse(IpAddress);
+                EndPoint iplocal = new IPEndPoint(addy, PortNumber);
+                socketBioListener.BeginReceiveFrom(udpDataBuffer, 0, udpDataBuffer.Length, SocketFlags.None, ref iplocal, DoReceiveFrom, socketBioListener);
+
+                if (msgLen == 0)
+                {
+                    Console.WriteLine("disconnected at " + PortNumber);
+                    socketBioListener.Close();
+                    InitializeBioSockets();
+                }
+                // phone is connected!
+                else
+                {
+                    Console.WriteLine("received at " + PortNumber);
+                    char[] chars = new char[msgLen + 1];
+                    Decoder d = Encoding.UTF8.GetDecoder();
+                    int len = d.GetChars(udpDataBuffer, 0, msgLen, chars, 0);
+                    String tmp = new String(chars);
+
+                    Console.WriteLine("received: " + tmp);
+
+                    window.ProcessBioSocketData(tmp, PortNumber);
+                    InsertDataToDb(tmp);
+                }
+
+                //Do other, more interesting, things with the received message.
+            }
+            catch (ObjectDisposedException)
+            {
+                //expected termination exception on a closed socket.
+                // ...I'm open to suggestions on a better way of doing this.
+            }
+        }
+        //private void OnBioSocketConnection(IAsyncResult asyn)
+        //{
+        //    try
+        //    {
+        //        Console.WriteLine("OnBioSocketConnection at " + PortNumber);
+        //        bioSocketWorker = socketBioListener.EndAccept(asyn);
+        //        bioSocketWorker.NoDelay = true;
+        //        WaitForBioData(bioSocketWorker);
+        //    }
+        //    catch (ObjectDisposedException)
+        //    {
+        //        Debugger.Log(0, "1", "\n OnSocketConnection: Socket has been closed\n");
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Console.WriteLine("SocketException thrown at OnBioSocketConnection");
+        //        MessageBox.Show(e.Message);
+        //    }
+
+        //}
+        //private void WaitForBioData(System.Net.Sockets.Socket soc)
+        //{
+        //    try
+        //    {
+        //        Console.WriteLine("WaitForBioData at " + PortNumber);
+        //        if (socketBioWorkerCallback == null)
+        //        {
+        //            socketBioWorkerCallback = new AsyncCallback(OnBioDataReceived);
+        //        }
+
+        //        ClinicalUDPSocketPacket sockpkt = new ClinicalUDPSocketPacket();
+        //        soc.NoDelay = true;
+        //        sockpkt.udpPacketSocket = soc;
+        //        //start listening for data
+        //        soc.BeginReceive(sockpkt.udpDataBuffer, 0, sockpkt.udpDataBuffer.Length, SocketFlags.None, socketBioWorkerCallback, sockpkt);
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Console.WriteLine("SocketException thrown at WaitForBioData");
+        //        MessageBox.Show(e.Message);
+        //    }
+        //}
+
+        //private void OnBioDataReceived(IAsyncResult asyn)
+        //{
+        //    try
+        //    {
+        //        Console.WriteLine("OnBioDataReceived at " + PortNumber);
+        //        ClinicalUDPSocketPacket socketID = (ClinicalUDPSocketPacket)asyn.AsyncState;
+        //        //end receive
+        //        int end = 0;
+        //        end = socketID.udpPacketSocket.EndReceive(asyn);
+
+        //        //Console.WriteLine(end.ToString());
+
+        //        // If the phone stops sending, then the EndReceive function returns 0
+        //        // (i.e. zero bytes received)
+        //        if (end == 0)
+        //        {
+        //            Console.WriteLine("disconnected at " + PortNumber);
+        //            socketID.udpPacketSocket.Close();
+        //            socketBioListener.Close();
+        //            InitializeBioSockets();
+        //        }
+        //        // phone is connected!
+        //        else
+        //        {
+        //            Console.WriteLine("received at " + PortNumber);
+        //            char[] chars = new char[end + 1];
+        //            Decoder d = Encoding.UTF8.GetDecoder();
+        //            int len = d.GetChars(socketID.udpDataBuffer, 0, end, chars, 0);
+        //            String tmp = new String(chars);
+
+        //            Console.WriteLine("received: " + tmp);
+
+        //            window.ProcessBioSocketData(tmp, PortNumber);
+        //            InsertDataToDb(tmp);
+
+        //            WaitForBioData(bioSocketWorker);
+        //        }
+        //    }
+        //    catch (ObjectDisposedException)
+        //    {
+        //        Debugger.Log(0, "1", "\nOnDataReceived: Socket has been closed\n");
+        //    }
+        //    catch (SocketException e)
+        //    {
+        //        Console.WriteLine("SocketException at OnBioDataReceived");
+        //        // this error is thrown when the doctor disconnects
+        //        // need to add code to close sockets and close the application
+        //        MessageBox.Show(e.Message);
+        //    }
+
+        //}
+
+        private void InsertDataToDb(String data)
+        {
+            DatabaseClass db = new DatabaseClass();
+            String[] datainfo = data.Trim().Split(' ');
+            String fields = "";
+            String tablename = "";
+            String values = "";
+            switch (PortNumber)
+            {
+                // !! ADD ENCRYPTION !! 
+
+                // HR and OX
+                case 4444:
+                    if (datainfo[0] == "HR")
+                    {
+                        tablename = "hr_data";
+                        fields = "heart_rate, session_id";
+                        values = datainfo[1].Trim() + ", " + sessionId.ToString();
+                    }
+                    else if (datainfo[0] == "OX")
+                    {
+                        tablename = "ox_data";
+                        fields = "oxy_sat, session_id";
+                        values = datainfo[1].Trim() + ", " + sessionId.ToString();
+                    }
+                    else if (datainfo[0] == "UI")
+                    {
+                        tablename = "ui_data";
+                        fields = "ui_value, session_id";
+                        values = datainfo[1].Trim() + "," + sessionId.ToString();
+                    }
+                    else if (datainfo[0] == "BP")
+                    {
+                        // insert cloud data to db.
+                        if (window.BpCloudData != "")
+                        {
+                            String bpData = window.BpCloudData;
+                            String[] received = bpData.Split('/');
+
+                            for (int i = 0; i < received.Length; i++)
+                            {
+                                if (received[i] != "")
+                                {
+                                    String[] bpdata = received[i].Split(',');
+                                    tablename = "bp_data";
+                                    fields = "systolic, diastolic, session_id";
+                                    values = bpdata[0].Trim() + ", " + bpdata[1].Trim() + ", " + sessionId.ToString();
+                                }
+                            }
+                        }
+                    }
+                    break;
+                // BP
+                case 4445:
+                    tablename = "bp_data";
+                    fields = "systolic, diastolic, session_id";
+                    values = datainfo[0].Trim() + ", " + datainfo[1].Trim() + ", " + sessionId.ToString();
+                    break;
+                // ECG
+                case 4446:
+                    tablename = "ecg_data";
+                    fields = "ecg_data, session_id";
+                    String processed = data.Substring(0, data.Length - 3);
+                    values = "'" + processed.Trim() + "', " + sessionId.ToString();
+                    break;
+                // Bike
+                case 4447:
+                    if (datainfo[0] == "PW")
+                    {
+                        tablename = "power_data";
+                        fields = "power_value, resistance_lv, session_id";
+                        values = datainfo[1].Trim() + ", " + datainfo[2].Trim() + ", " + sessionId.ToString();
+                    }
+                    else if (datainfo[0] == "WR")
+                    {
+                        tablename = "wheel_data";
+                        fields = "wheel_value, session_id";
+                        values = datainfo[1].Trim() + ", " + sessionId.ToString();
+                    }
+                    else if (datainfo[0] == "CR")
+                    {
+                        tablename = "crank_data";
+                        fields = "crank_value, session_id";
+                        values = datainfo[1].Trim() + ", " + sessionId.ToString();
+                    }
+                    break;
+            }
+
+            if ((tablename != "") && (fields != "") && (values != ""))
+            {
+                db.InsertRecord(tablename, fields, values);
+            }
+        }
+
+        public void CloseSocket()
+        {
+            if (bioSocketWorker != null)
+            {
+                if (bioSocketWorker.Connected)
+                {
+                    bioSocketWorker.Close();
+                }
+
+                if (socketBioListener.Connected)
+                {
+                    socketBioListener.Close();
+                }
+            }
+        }
+    }
+}
