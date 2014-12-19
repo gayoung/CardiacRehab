@@ -20,7 +20,7 @@ namespace CardiacRehab
     class ClinicalSocketPacket
     {
         public System.Net.Sockets.Socket packetSocket;
-        public byte[] dataBuffer = new byte[200];
+        public byte[] dataBuffer = new byte[256];
     }
 
     class BioSocket

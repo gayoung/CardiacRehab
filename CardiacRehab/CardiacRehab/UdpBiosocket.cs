@@ -13,7 +13,7 @@ namespace CardiacRehab
 
     class UdpBiosocket
     {
-        private AsyncCallback socketBioWorkerCallback;
+        //private AsyncCallback socketBioWorkerCallback;
         public Socket socketBioListener;
         public Socket bioSocketWorker = null;
         String IpAddress;
@@ -22,7 +22,7 @@ namespace CardiacRehab
         int patientindex;
         int patientDbId;
         int sessionId;
-        byte[] udpDataBuffer = new byte[200];
+        byte[] udpDataBuffer = new byte[256];
 
         public UdpBiosocket(String ip, int port, int index, int dbId, int session, PatientWindow currentwindow)
         {
@@ -39,11 +39,16 @@ namespace CardiacRehab
             try
             {
                 //create listening socket
+                //Console.WriteLine("InitializeBioSockets1");
                 socketBioListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                //Console.WriteLine("InitializeBioSockets2");
                 IPAddress addy = IPAddress.Parse(IpAddress);
+                //Console.WriteLine("InitializeBioSockets3");
                 EndPoint iplocal = new IPEndPoint(addy, PortNumber);
+                //Console.WriteLine("InitializeBioSockets4");
                 //bind to local IP Address
                 socketBioListener.Bind(iplocal);
+                //Console.WriteLine("InitializeBioSockets5");
 
                 socketBioListener.BeginReceiveFrom(udpDataBuffer, 0, udpDataBuffer.Length, SocketFlags.None, ref iplocal, DoReceiveFrom, socketBioListener);
             }
@@ -61,17 +66,26 @@ namespace CardiacRehab
             try
             {
                 //Get the received message.
+                //Console.WriteLine("DoReceiveFrom1");
                 Socket recvSock = (Socket)iar.AsyncState;
+                //Console.WriteLine("DoReceiveFrom2");
                 EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
+                //Console.WriteLine("DoReceiveFrom3");
                 int msgLen = recvSock.EndReceiveFrom(iar, ref clientEP);
+                //Console.WriteLine("DoReceiveFrom4");
                 byte[] localMsg = new byte[msgLen];
+                //Console.WriteLine("DoReceiveFrom5");
                 Array.Copy(udpDataBuffer, localMsg, msgLen);
+                //Console.WriteLine("DoReceiveFrom6");
 
                 //Start listening for a new message.
                 IPAddress addy = IPAddress.Parse(IpAddress);
+                //Console.WriteLine("DoReceiveFrom7");
                 EndPoint iplocal = new IPEndPoint(addy, PortNumber);
+                //Console.WriteLine("DoReceiveFrom8");
                 socketBioListener.BeginReceiveFrom(udpDataBuffer, 0, udpDataBuffer.Length, SocketFlags.None, ref iplocal, DoReceiveFrom, socketBioListener);
 
+                //Console.WriteLine("DoReceiveFrom9");
                 if (msgLen == 0)
                 {
                     Console.WriteLine("disconnected at " + PortNumber);
@@ -81,13 +95,13 @@ namespace CardiacRehab
                 // phone is connected!
                 else
                 {
-                    Console.WriteLine("received at " + PortNumber);
+                    //Console.WriteLine("received at " + PortNumber);
                     char[] chars = new char[msgLen + 1];
                     Decoder d = Encoding.UTF8.GetDecoder();
                     int len = d.GetChars(udpDataBuffer, 0, msgLen, chars, 0);
                     String tmp = new String(chars);
 
-                    Console.WriteLine("received: " + tmp);
+                    //Console.WriteLine("received: " + tmp);
 
                     window.ProcessBioSocketData(tmp, PortNumber);
                     InsertDataToDb(tmp);

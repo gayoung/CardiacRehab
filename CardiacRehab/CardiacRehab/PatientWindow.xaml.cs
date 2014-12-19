@@ -79,10 +79,10 @@ namespace CardiacRehab
         BioSocket ecgSocket;
         BioSocket bikeSocket;
 
-        UdpBiosocket testSocket;
-        UdpBiosocket testSocket2;
-        UdpBiosocket testSocket3;
-        UdpBiosocket testSocket4;
+        UdpBiosocket hrUdpSocket;
+        UdpBiosocket bpUdpSocket;
+        UdpBiosocket ecgUdpSocket;
+        UdpBiosocket bikeUdpSocket;
 
         Socket HrOxToClinician = null;
         Socket UiBpToClinician = null;
@@ -130,7 +130,7 @@ namespace CardiacRehab
             //turnSocket = new UnitySocket(5556);
             //turnSocket.ConnectToUnity();
 
-            //InitializeVR();
+            InitializeVR();
 
             //rotary_encoder = new PhidgetEncoder(3, this);
             //rotary_encoder.Initialize();
@@ -163,20 +163,26 @@ namespace CardiacRehab
             //bikeSocket.InitializeBioSockets();
             //Console.WriteLine ("DONE");
 
-            //testSocket = new UdpBiosocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
-            testSocket = new UdpBiosocket("192.168.184.7", 4444, patientIndex, user, sessionID, this);
-            testSocket.InitializeBioSockets();
-            testSocket2 = new UdpBiosocket("192.168.184.7", 4445, patientIndex, user, sessionID, this);
-            testSocket2.InitializeBioSockets();
-            testSocket3 = new UdpBiosocket("192.168.184.7", 4446, patientIndex, user, sessionID, this);
-            testSocket3.InitializeBioSockets();
-            testSocket4 = new UdpBiosocket("192.168.184.7", 4447, patientIndex, user, sessionID, this);
-            testSocket4.InitializeBioSockets();
+            Console.WriteLine("connecting to: " + wirelessIP);
+            hrUdpSocket = new UdpBiosocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
+            hrUdpSocket.InitializeBioSockets();
+            bpUdpSocket = new UdpBiosocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
+            bpUdpSocket.InitializeBioSockets();
+            ecgUdpSocket = new UdpBiosocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
+            ecgUdpSocket.InitializeBioSockets();
+            bikeUdpSocket = new UdpBiosocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
+            bikeUdpSocket.InitializeBioSockets();
+            //testSocket2 = new UdpBiosocket("192.168.184.7", 4445, patientIndex, user, sessionID, this);
+            //testSocket2.InitializeBioSockets();
+            //testSocket3 = new UdpBiosocket("192.168.184.7", 4446, patientIndex, user, sessionID, this);
+            //testSocket3.InitializeBioSockets();
+            //testSocket4 = new UdpBiosocket("192.168.184.7", 4447, patientIndex, user, sessionID, this);
+            //testSocket4.InitializeBioSockets();
 
 
             // Disable this function if testing with InitTimer()
             //InitMockBPTimer();
-            InitTimer();
+            //InitTimer();
         }
 
         #region VR code
