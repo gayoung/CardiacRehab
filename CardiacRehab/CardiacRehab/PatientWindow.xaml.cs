@@ -126,6 +126,7 @@ namespace CardiacRehab
 
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
+            Console.WriteLine("connectToUnity After");
 
             //turnSocket = new UnitySocket(5556);
             //turnSocket.ConnectToUnity();
@@ -163,21 +164,16 @@ namespace CardiacRehab
             //bikeSocket.InitializeBioSockets();
             //Console.WriteLine ("DONE");
 
-            Console.WriteLine("connecting to: " + wirelessIP);
-            hrUdpSocket = new UdpBiosocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
-            hrUdpSocket.InitializeBioSockets();
-            bpUdpSocket = new UdpBiosocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
-            bpUdpSocket.InitializeBioSockets();
-            ecgUdpSocket = new UdpBiosocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
-            ecgUdpSocket.InitializeBioSockets();
-            bikeUdpSocket = new UdpBiosocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
-            bikeUdpSocket.InitializeBioSockets();
-            //testSocket2 = new UdpBiosocket("192.168.184.7", 4445, patientIndex, user, sessionID, this);
-            //testSocket2.InitializeBioSockets();
-            //testSocket3 = new UdpBiosocket("192.168.184.7", 4446, patientIndex, user, sessionID, this);
-            //testSocket3.InitializeBioSockets();
-            //testSocket4 = new UdpBiosocket("192.168.184.7", 4447, patientIndex, user, sessionID, this);
-            //testSocket4.InitializeBioSockets();
+            // Working for biodata + bike with UDP
+            //Console.WriteLine("connecting to: " + wirelessIP);
+            //hrUdpSocket = new UdpBiosocket(wirelessIP, 4444, patientIndex, user, sessionID, this);
+            //hrUdpSocket.InitializeBioSockets();
+            //bpUdpSocket = new UdpBiosocket(wirelessIP, 4445, patientIndex, user, sessionID, this);
+            //bpUdpSocket.InitializeBioSockets();
+            //ecgUdpSocket = new UdpBiosocket(wirelessIP, 4446, patientIndex, user, sessionID, this);
+            //ecgUdpSocket.InitializeBioSockets();
+            //bikeUdpSocket = new UdpBiosocket(wirelessIP, 4447, patientIndex, user, sessionID, this);
+            //bikeUdpSocket.InitializeBioSockets();
 
 
             // Disable this function if testing with InitTimer()
@@ -375,32 +371,41 @@ namespace CardiacRehab
                 //data = "CR " + cadenceVal.ToString() + "\n";
                 //dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
                 //BikeToClinician.Send(dataToUnity);
-
                 if (unityBikeSocket != null)
                 {
                     if (unityBikeSocket.unitySocketListener.Connected)
                     {
-                        // mock data sent to the Unity Application
-                        data = "PW " + powerVal.ToString() + "\n";
-                        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                        unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                        try
+                        {
+                            // mock data sent to the Unity Application
+                            data = "PW " + powerVal.ToString() + "\n";
+                            dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                            //unityBikeSocket.unitySocketListener.SendTo(dataToUnity, dataToUnity.Length, SocketFlags.None, unityBikeSocket.endpt);
+                            unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                            data = "";
 
-                        data = "";
+                            data = "WR " + speedVal.ToString() + "\n";
+                            dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                            // unityBikeSocket.unitySocketListener.SendTo(dataToUnity, dataToUnity.Length, SocketFlags.None, unityBikeSocket.endpt);
+                            unityBikeSocket.unitySocketListener.Send(dataToUnity);
 
-                        data = "WR " + speedVal.ToString() + "\n";
-                        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                        unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                            data = "";
 
-                        data = "";
-
-                        data = "CR " + cadenceVal.ToString() + "\n";
-                        dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                        unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                            data = "CR " + cadenceVal.ToString() + "\n";
+                            dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
+                            // unityBikeSocket.unitySocketListener.SendTo(dataToUnity, dataToUnity.Length, SocketFlags.None, unityBikeSocket.endpt);
+                            unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                        }
+                        catch (SocketException e)
+                        {
+                            Console.WriteLine("timer socket exception: " + e.Message);
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("not connected");
+                        Console.WriteLine("Not connected");
                     }
+
                 }
             }
             catch (Exception ex)
@@ -425,6 +430,7 @@ namespace CardiacRehab
                     if (unityBikeSocket.unitySocketWorker.Connected)
                     {
                         byte[] dataToUnity = System.Text.Encoding.ASCII.GetBytes(tmp);
+                        Console.WriteLine("sending to unity: " + dataToUnity);
                         unityBikeSocket.unitySocketWorker.Send(dataToUnity);
                     }
                 }
