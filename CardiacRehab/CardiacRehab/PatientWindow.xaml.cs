@@ -126,7 +126,6 @@ namespace CardiacRehab
 
             unityBikeSocket = new UnitySocket(5555);
             unityBikeSocket.ConnectToUnity();
-            Console.WriteLine("connectToUnity After");
 
             //turnSocket = new UnitySocket(5556);
             //turnSocket.ConnectToUnity();
@@ -178,7 +177,7 @@ namespace CardiacRehab
 
             // Disable this function if testing with InitTimer()
             //InitMockBPTimer();
-            //InitTimer();
+            InitTimer();
         }
 
         #region VR code
@@ -371,41 +370,33 @@ namespace CardiacRehab
                 //data = "CR " + cadenceVal.ToString() + "\n";
                 //dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
                 //BikeToClinician.Send(dataToUnity);
-                if (unityBikeSocket != null)
+                if (unityBikeSocket.unitySocketWorker != null)
                 {
-                    if (unityBikeSocket.unitySocketListener.Connected)
+                    if (unityBikeSocket.unitySocketWorker.Connected)
                     {
                         try
                         {
                             // mock data sent to the Unity Application
                             data = "PW " + powerVal.ToString() + "\n";
                             dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                            //unityBikeSocket.unitySocketListener.SendTo(dataToUnity, dataToUnity.Length, SocketFlags.None, unityBikeSocket.endpt);
-                            unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                            unityBikeSocket.unitySocketWorker.Send(dataToUnity);
                             data = "";
 
                             data = "WR " + speedVal.ToString() + "\n";
                             dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                            // unityBikeSocket.unitySocketListener.SendTo(dataToUnity, dataToUnity.Length, SocketFlags.None, unityBikeSocket.endpt);
-                            unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                            unityBikeSocket.unitySocketWorker.Send(dataToUnity);
 
                             data = "";
 
                             data = "CR " + cadenceVal.ToString() + "\n";
                             dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
-                            // unityBikeSocket.unitySocketListener.SendTo(dataToUnity, dataToUnity.Length, SocketFlags.None, unityBikeSocket.endpt);
-                            unityBikeSocket.unitySocketListener.Send(dataToUnity);
+                            unityBikeSocket.unitySocketWorker.Send(dataToUnity);
                         }
                         catch (SocketException e)
                         {
                             Console.WriteLine("timer socket exception: " + e.Message);
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine("Not connected");
-                    }
-
                 }
             }
             catch (Exception ex)
