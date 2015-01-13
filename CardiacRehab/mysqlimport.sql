@@ -2,9 +2,6 @@
 This code is needed for the other computers to connect to this local db server. 
 For now, this query needs to list all IP that will attempt to connect to this db server.
 */
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.0.101' IDENTIFIED BY '';
-FLUSH PRIVILEGES;
-
 DROP TABLE IF EXISTS hr_data;
 DROP TABLE IF EXISTS ox_data;
 DROP TABLE IF EXISTS ui_data;
