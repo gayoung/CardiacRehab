@@ -44,30 +44,30 @@ namespace CardiacRehab
         ClinicianSockets patient1ecg;
         ClinicianSockets patient1bike;
 
-        ClinicianSockets patient2hrox;
-        ClinicianSockets patient2uibp;
-        ClinicianSockets patient2ecg;
-        ClinicianSockets patient2bike;
+        //ClinicianSockets patient2hrox;
+        //ClinicianSockets patient2uibp;
+        //ClinicianSockets patient2ecg;
+        //ClinicianSockets patient2bike;
 
-        ClinicianSockets patient3hrox;
-        ClinicianSockets patient3uibp;
-        ClinicianSockets patient3ecg;
-        ClinicianSockets patient3bike;
+        //ClinicianSockets patient3hrox;
+        //ClinicianSockets patient3uibp;
+        //ClinicianSockets patient3ecg;
+        //ClinicianSockets patient3bike;
 
-        ClinicianSockets patient4hrox;
-        ClinicianSockets patient4uibp;
-        ClinicianSockets patient4ecg;
-        ClinicianSockets patient4bike;
+        //ClinicianSockets patient4hrox;
+        //ClinicianSockets patient4uibp;
+        //ClinicianSockets patient4ecg;
+        //ClinicianSockets patient4bike;
 
-        ClinicianSockets patient5hrox;
-        ClinicianSockets patient5uibp;
-        ClinicianSockets patient5ecg;
-        ClinicianSockets patient5bike;
+        //ClinicianSockets patient5hrox;
+        //ClinicianSockets patient5uibp;
+        //ClinicianSockets patient5ecg;
+        //ClinicianSockets patient5bike;
 
-        ClinicianSockets patient6hrox;
-        ClinicianSockets patient6uibp;
-        ClinicianSockets patient6ecg;
-        ClinicianSockets patient6bike;
+        //ClinicianSockets patient6hrox;
+        //ClinicianSockets patient6uibp;
+        //ClinicianSockets patient6ecg;
+        //ClinicianSockets patient6bike;
 
         WaveOut wo = new WaveOut();
         WaveFormat wf = new WaveFormat(16000, 1);
