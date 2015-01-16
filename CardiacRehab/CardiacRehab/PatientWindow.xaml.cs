@@ -324,6 +324,7 @@ namespace CardiacRehab
             int oxygen = r.Next(93, 99);
             int systolic = r.Next(100, 180);
             int diastolic = r.Next(50, 120);
+            int intensityVal = r.Next(6, 20);
 
             // testing for bike data (values may not be in correct range)
             int powerVal = r.Next(20, 40);
@@ -348,6 +349,10 @@ namespace CardiacRehab
                 HrOxToClinician.Send(dataToClinician);
 
                 data = "BP " + systolic.ToString() + " " + diastolic.ToString() + "   ";
+                dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
+                UiBpToClinician.Send(dataToClinician);
+
+                data = "UI " + intensityVal.ToString() + "    ";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 UiBpToClinician.Send(dataToClinician);
 
@@ -421,7 +426,6 @@ namespace CardiacRehab
                     if (unityBikeSocket.unitySocketWorker.Connected)
                     {
                         byte[] dataToUnity = System.Text.Encoding.ASCII.GetBytes(tmp);
-                        Console.WriteLine("sending to unity: " + dataToUnity);
                         unityBikeSocket.unitySocketWorker.Send(dataToUnity);
                     }
                 }
@@ -536,9 +540,12 @@ namespace CardiacRehab
             {
                 int indexNumber = 5001 + (patientIndex - 1) * 10;
                 HrOxToClinician = CreateClinicianSocket(indexNumber);
-                UiBpToClinician = CreateClinicianSocket(indexNumber++);
-                EcgToClinician = CreateClinicianSocket(indexNumber++);
-                BikeToClinician = CreateClinicianSocket(indexNumber++);
+                indexNumber++;
+                UiBpToClinician = CreateClinicianSocket(indexNumber);
+                indexNumber++;
+                EcgToClinician = CreateClinicianSocket(indexNumber);
+                indexNumber++;
+                BikeToClinician = CreateClinicianSocket(indexNumber);
             }
 
             catch (SocketException e)
@@ -556,8 +563,7 @@ namespace CardiacRehab
             {
                 newsocket.NoDelay = true;
                 System.Net.IPAddress remoteIPAddy = System.Net.IPAddress.Parse(doctorIp);
-                int indexNumber = 5001 + (patientIndex - 1) * 10;
-                System.Net.IPEndPoint remoteEndPoint = new System.Net.IPEndPoint(remoteIPAddy, indexNumber);
+                System.Net.IPEndPoint remoteEndPoint = new System.Net.IPEndPoint(remoteIPAddy, port);
                 newsocket.Connect(remoteEndPoint);
             }
             else
@@ -698,22 +704,22 @@ namespace CardiacRehab
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-        //    // clean up 
-        //    rotary_encoder.CloseEncoder();
-        //    unityBikeSocket.CloseSocket();
-        //    turnSocket.CloseSocket();
-        //    otherSocket.CloseSocket();
-        //    bpSocket.CloseSocket();
-        //    ecgSocket.CloseSocket();
-        //    bikeSocket.CloseSocket();
+            //    // clean up 
+            //    rotary_encoder.CloseEncoder();
+            //    unityBikeSocket.CloseSocket();
+            //    turnSocket.CloseSocket();
+            //    otherSocket.CloseSocket();
+            //    bpSocket.CloseSocket();
+            //    ecgSocket.CloseSocket();
+            //    bikeSocket.CloseSocket();
 
-        //    if (mybufferwp != null)
-        //    {
-        //        mybufferwp.ClearBuffer();
+            //    if (mybufferwp != null)
+            //    {
+            //        mybufferwp.ClearBuffer();
 
-        //        wo.Stop();
-        //        wo.Dispose();
-        //    }
+            //        wo.Stop();
+            //        wo.Dispose();
+            //    }
         }
     }
 
