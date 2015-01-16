@@ -93,6 +93,7 @@
     <Compile Include="PhidgetEncoder.cs" />
     <Compile Include="TextBoxStreamWriter.cs" />
     <Compile Include="UdpBiosocket.cs" />
+    <Compile Include="UdpBiosocketClient.cs" />
     <Compile Include="UnitySocket.cs" />
     <Page Include="DoctorWindow.xaml">
       <SubType>Designer</SubType>

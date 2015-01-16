@@ -181,6 +181,7 @@ namespace CardiacRehab
             // check for doctor IP
             HttpRequestClass getDoc = new HttpRequestClass();
             // later change the host name...
+            Console.WriteLine(hostUrl);
             String docinfo = getDoc.GetPostData(hostUrl + docID + "/").Trim();
 
             ContactInfo docData = new ContactInfo();

@@ -322,8 +322,8 @@ namespace CardiacRehab
             Random r = new Random();
             int heartRate = r.Next(60, 200);
             int oxygen = r.Next(93, 99);
-            //int systolic = r.Next(100, 180);
-            //int diastolic = r.Next(50, 120);
+            int systolic = r.Next(100, 180);
+            int diastolic = r.Next(50, 120);
 
             // testing for bike data (values may not be in correct range)
             int powerVal = r.Next(20, 40);
@@ -339,35 +339,35 @@ namespace CardiacRehab
             try
             {
                 // mock data sent to the clinician
-                data = "HR " + heartRate.ToString() + "\n";
+                data = "HR " + heartRate.ToString() + "   ";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 HrOxToClinician.Send(dataToClinician);
 
-                data = "OX " + oxygen.ToString() + "\n";
+                data = "OX " + oxygen.ToString() + "   ";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 HrOxToClinician.Send(dataToClinician);
 
-                data = "BP " + systolic.ToString() + " " + diastolic.ToString() + "\n";
+                data = "BP " + systolic.ToString() + " " + diastolic.ToString() + "   ";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 UiBpToClinician.Send(dataToClinician);
 
-                data = "-592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259\n";
+                data = "-592 -201 -133 -173 -172 -143 -372 -349 -336 -332 -314 -309 -295 -274 -265 -261 16 44 75 102 -123 -80 -44 -11 259   ";
                 dataToClinician = System.Text.Encoding.ASCII.GetBytes(data);
                 EcgToClinician.Send(dataToClinician);
 
-                data = "PW " + powerVal.ToString() + "\n";
+                data = "PW " + powerVal.ToString() + "   ";
                 dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
                 BikeToClinician.Send(dataToUnity);
 
                 data = "";
 
-                data = "WR " + speedVal.ToString() + "\n";
+                data = "WR " + speedVal.ToString() + "   ";
                 dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
                 BikeToClinician.Send(dataToUnity);
 
                 data = "";
 
-                data = "CR " + cadenceVal.ToString() + "\n";
+                data = "CR " + cadenceVal.ToString() + "   ";
                 dataToUnity = System.Text.Encoding.ASCII.GetBytes(data);
                 BikeToClinician.Send(dataToUnity);
                 if (unityBikeSocket.unitySocketWorker != null)

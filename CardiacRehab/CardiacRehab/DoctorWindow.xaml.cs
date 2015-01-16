@@ -180,21 +180,22 @@ namespace CardiacRehab
                 case 5001:  // patient 1 heart rate + oxygen sat
                     if (header == "HR")
                     {
-                        UpdatePatientHR(processedString[1], hrValue1);
+                        hrValue1.Content = processedString[1].Trim();
                     }
                     else if (header == "OX")
                     {
-                        UpdatePatientOX(processedString[1], oxiValue1);
+                        oxiValue1.Content = processedString[1].Trim();
                     }
                     break;
                 case 5002:  // patient 1 intensity + blood pressure
                     if(header == "UI")
                     {
-                        UpdatePatientUI(processedString[1], uiValue1);
+                        uiValue1.Content = processedString[1].Trim();
                     }
                     else if(header == "BP")
                     {
-                        UpdatePatientBP(processedString[1], processedString[2], bpSysValue1, bpDiaValue1);
+                        bpSysValue1.Content = processedString[1].Trim();
+                        bpDiaValue1.Content = processedString[2].Trim();
                     }
                     break;
                 case 5003:  // patient 1 ECG
@@ -263,26 +264,6 @@ namespace CardiacRehab
             // later need to add methods to give clinicians warning
         }
 
-        private void UpdatePatientHR(String hrdata, Label hrValLabel)
-        {
-            hrValLabel.Content = hrdata.Trim();
-        }
-
-        private void UpdatePatientOX(String oxdata, Label oxValLabel)
-        {
-            oxValLabel.Content = oxdata.Trim();
-        }
-
-        private void UpdatePatientUI(String uidata, Label uiValLabel)
-        {
-            uiValLabel.Content = uidata.Trim();
-        }
-
-        private void UpdatePatientBP(String systolic, String diastolic, Label sysLabel, Label diaLabel)
-        {
-            sysLabel.Content = systolic.Trim();
-            diaLabel.Content = diastolic.Trim();
-        }
         #endregion
 
         #region Helper functions
