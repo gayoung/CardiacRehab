@@ -26,6 +26,8 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using ColorImageFormat = Microsoft.Kinect.ColorImageFormat;
 using ColorImageFrame = Microsoft.Kinect.ColorImageFrame;
+using System.Threading;
+using System.IO;
 
 namespace CardiacRehab
 {
@@ -77,6 +79,8 @@ namespace CardiacRehab
         private FullScreenWindow fullscreenview = null;
         bool[] warningStatus = new bool[6];
 
+        TextWriter _writer;
+
         public DoctorWindow(List<ContactInfo> list)
         {
             PatientList = list;
@@ -84,19 +88,29 @@ namespace CardiacRehab
             InitializeComponent();
             GetLocalIP();
             InitializeAllPatientSockets();
+
+            _writer = new TextBoxStreamWriter(textMessage);
+            Console.SetOut(_writer);
         }
 
         private void InitializeAllPatientSockets()
         {
             // Really need to refactor!!!
             patient1hrox = new ClinicianSockets(wirelessIP, 5001, this);
-            patient1hrox.InitializeCliniSockets();
+            Thread patient1hroxThread = new Thread(new ThreadStart(patient1hrox.InitializeCliniSockets));
+            patient1hroxThread.Start();
+
             patient1uibp = new ClinicianSockets(wirelessIP, 5002, this);
-            patient1uibp.InitializeCliniSockets();
+            Thread patient1uibpThread = new Thread(new ThreadStart(patient1uibp.InitializeCliniSockets));
+            patient1uibpThread.Start();
+
             patient1ecg = new ClinicianSockets(wirelessIP, 5003, this);
-            patient1ecg.InitializeCliniSockets();
+            Thread patient1ecgThread = new Thread(new ThreadStart(patient1ecg.InitializeCliniSockets));
+            patient1ecgThread.Start();
+
             patient1bike = new ClinicianSockets(wirelessIP, 5004, this);
-            patient1bike.InitializeCliniSockets();
+            Thread patient1bikeThread = new Thread(new ThreadStart(patient1bike.InitializeCliniSockets));
+            patient1bikeThread.Start();
 
             //patient2hrox = new ClinicianSockets(wirelessIP, 5011, this);
             //patient2hrox.InitializeCliniSockets();
@@ -171,7 +185,6 @@ namespace CardiacRehab
         public void UpdateUI(String data, int portNum)
         {
             // test code
-            Console.WriteLine(data);
             String[] processedString = data.Trim().Split(' ');
             String header = processedString[0].Trim();
 
@@ -180,22 +193,22 @@ namespace CardiacRehab
                 case 5001:  // patient 1 heart rate + oxygen sat
                     if (header == "HR")
                     {
-                        hrValue1.Content = processedString[1].Trim();
+                        UpdatePatientHR(processedString[1], hrValue1);
                     }
                     else if (header == "OX")
                     {
-                        oxiValue1.Content = processedString[1].Trim();
+                        UpdatePatientOX(processedString[1], oxiValue1);
                     }
                     break;
                 case 5002:  // patient 1 intensity + blood pressure
+                    Console.WriteLine("bpui data: "+data);
                     if(header == "UI")
                     {
-                        uiValue1.Content = processedString[1].Trim();
+                        UpdatePatientUI(processedString[1], uiValue1);
                     }
                     else if(header == "BP")
                     {
-                        bpSysValue1.Content = processedString[1].Trim();
-                        bpDiaValue1.Content = processedString[2].Trim();
+                        UpdatePatientBP(processedString[1], processedString[2], bpSysValue1, bpDiaValue1);
                     }
                     break;
                 case 5003:  // patient 1 ECG
@@ -205,15 +218,15 @@ namespace CardiacRehab
                     // not sure what to do with this info yet?
                     if(header == "PW")
                     {
-                        Console.WriteLine(header);
+                        //Console.WriteLine(header);
                     }
                     else if(header == "WR")
                     {
-                        Console.WriteLine(header);
+                       // Console.WriteLine(header);
                     }
                     else if(header == "CR")
                     {
-                        Console.WriteLine(header);
+                        //Console.WriteLine(header);
                     }
                     break;
                 case 5011:
@@ -264,6 +277,26 @@ namespace CardiacRehab
             // later need to add methods to give clinicians warning
         }
 
+        private void UpdatePatientHR(String hrdata, Label hrValLabel)
+        {
+            hrValLabel.Dispatcher.Invoke((Action)(() => hrValLabel.Content = hrdata.Trim()));
+        }
+
+        private void UpdatePatientOX(String oxdata, Label oxValLabel)
+        {
+            oxValLabel.Dispatcher.Invoke((Action)(() => oxValLabel.Content = oxdata.Trim()));
+        }
+
+        private void UpdatePatientUI(String uidata, Label uiValLabel)
+        {
+            uiValLabel.Dispatcher.Invoke((Action)(() => uiValLabel.Content = uidata.Trim()));
+        }
+
+        private void UpdatePatientBP(String systolic, String diastolic, Label sysLabel, Label diaLabel)
+        {
+            sysLabel.Dispatcher.Invoke((Action)(() => sysLabel.Content = systolic.Trim()));
+            diaLabel.Dispatcher.Invoke((Action)(() => diaLabel.Content = diastolic.Trim()));
+        }
         #endregion
 
         #region Helper functions

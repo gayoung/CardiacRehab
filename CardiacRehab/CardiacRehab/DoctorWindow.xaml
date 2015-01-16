@@ -270,6 +270,7 @@
                     <Label Content="%" FontWeight="Bold" RenderTransformOrigin="-0.55,0.538" Margin="34,3,12,1" Grid.Row="2" Grid.Column="2"/>
                     <Label x:Name="uiLabel2" Content="Intensity : " FontWeight="Bold" Grid.Row="3" Grid.Column="4" Margin="13,0,15,10" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2"/>
                     <Label x:Name="uiValue2" Content="--" FontWeight="Bold" Grid.Row="3" Grid.Column="5" Margin="0,3,10,7" RenderTransformOrigin="4.143,2.379" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="50"/>
+                    <TextBox x:Name="textMessage" Grid.ColumnSpan="7" HorizontalAlignment="Left" Height="57" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="259" Margin="15,21,0,0" Grid.Row="4"/>
 
                 </Grid>
             </Border>
