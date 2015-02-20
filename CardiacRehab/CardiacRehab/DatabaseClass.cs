@@ -26,6 +26,7 @@ namespace CardiacRehab
         /// </summary>
         private void InitializeDB()
         {
+            // change to your MySQL setup
             db_server = "localhost";
             db_name = "cardiac";
             db_username = "root";
